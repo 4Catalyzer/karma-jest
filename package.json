@@ -68,7 +68,7 @@
     "karma": "^4.4.1",
     "karma-mocha-reporter": "^2.2.5",
     "karma-rollup-preprocessor": "^7.0.3",
-    "lint-staged": "^9.4.2",
+    "lint-staged": "^10.0.8",
     "patch-package": "^6.2.1",
     "prettier": "^1.19.1",
     "rollup": "^1.32.0",
