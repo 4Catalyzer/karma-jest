@@ -21,6 +21,9 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "patch-package"
   },
+  "files": [
+    "lib"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -86,6 +89,7 @@
     "@4c/cli-core": "^2.1.1",
     "@babel/code-frame": "^7.8.3",
     "@jest/console": "^25.1.0",
+    "@jest/fake-timers": "^25.1.0",
     "@jest/reporters": "^25.1.0",
     "@jest/test-result": "^25.1.0",
     "@jest/types": "^25.1.0",

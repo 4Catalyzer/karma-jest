@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle, no-param-reassign */
 
+import FakeTimers from '@jest/fake-timers/build/FakeTimersLolex';
 import { AssertionResult } from '@jest/test-result';
 import { Circus } from '@jest/types';
 import colors from 'ansi-colors';
@@ -7,6 +8,7 @@ import expect from 'expect';
 import * as TestGlobals from 'jest-circus';
 import run from 'jest-circus/build/run';
 import RunnerState from 'jest-circus/build/state';
+import JestMock from 'jest-mock';
 
 import getTestPath from './getTestPath';
 import SnapshotState from './snapshot/State';
@@ -15,10 +17,63 @@ import { Result } from './types';
 
 const { __karma__: karma } = window;
 
+const testTimeoutSymbol = Symbol.for('TEST_TIMEOUT_SYMBOL');
+
 window.__snapshots__ = window.__snapshots__ || { suites: new Map() };
+
+const fakeTimers = new FakeTimers({
+  global: window,
+  config: {
+    rootDir: '/',
+    testMatch: [
+      '**/__tests__/**/*.[jt]s?(x)',
+      '**/?(*.)+(spec|test).[jt]s?(x)',
+    ],
+  },
+} as any);
+
+const jest = {
+  fn: JestMock.fn.bind(JestMock),
+  spyOn: JestMock.spyOn.bind(JestMock),
+
+  setTimeout: (timeoutMs: number) => {
+    // @ts-ignore
+    global[testTimeoutSymbol] = timeoutMs;
+
+    return jest;
+  },
+
+  advanceTimersByTime: (msToRun: number) =>
+    fakeTimers.advanceTimersByTime(msToRun),
+  advanceTimersToNextTimer: (steps?: number) =>
+    fakeTimers.advanceTimersToNextTimer(steps),
+  clearAllTimers: () => fakeTimers.clearAllTimers(),
+
+  getTimerCount: () => fakeTimers.getTimerCount(),
+  // not supported in lolex
+  // runAllImmediates: () => fakeTimers.runAllImmediates(),
+  runAllTicks: () => fakeTimers.runAllTicks(),
+  runAllTimers: () => fakeTimers.runAllTimers(),
+  runOnlyPendingTimers: () => fakeTimers.runOnlyPendingTimers(),
+  runTimersToTime: (msToRun: number) =>
+    fakeTimers.advanceTimersByTime(msToRun),
+
+  useFakeTimers: () => {
+    fakeTimers.useFakeTimers();
+    return jest;
+  },
+  useRealTimers: () => {
+    fakeTimers.useRealTimers();
+    return jest;
+  },
+};
 
 // @ts-ignore
 window.expect = expect;
+
+// @ts-ignore
+window.jest = jest;
+
 Object.assign(window, TestGlobals);
 
 snapshotMatchers(expect);

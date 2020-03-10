@@ -1,5 +1,3 @@
-console.error('HOOOOO');
-
 describe('suite', () => {
   describe('nested', () => {
     it('should work', () => {
@@ -8,7 +6,23 @@ describe('suite', () => {
   });
 
   it('should work 1', () => {
+    const spy = jest.fn();
+    console.log(spy);
+
+    jest.useFakeTimers();
+
+    let finished = false;
+    setTimeout(() => {
+      finished = true;
+    }, 300);
+
     expect(true).toEqual(true);
+
+    jest.runAllTimers();
+
+    expect(finished).toEqual(true);
+
+    jest.useRealTimers();
   });
 
   describe('nested 2', () => {

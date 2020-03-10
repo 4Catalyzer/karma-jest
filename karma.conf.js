@@ -12,7 +12,7 @@ const karmaJest = require('./src');
 
 module.exports = config => {
   config.set({
-    logLevel: 'error',
+    // logLevel: 'error',
     files: [
       /**
        * Make sure to disable Karma’s file watcher
