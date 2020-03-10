@@ -1,6 +1,6 @@
 {
   "name": "karma-jest",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
@@ -15,9 +15,7 @@
     "lint": "4c lint src './*'",
     "prepublishOnly": "yarn run build",
     "release": "4c release",
-    "tdd": "jest --watch",
-    "test": "yarn lint && jest && yarn typecheck",
-    "testonly": "jest",
+    "test": "yarn lint && yarn typecheck",
     "typecheck": "tsc --noEmit",
     "postinstall": "patch-package"
   },
@@ -36,14 +34,9 @@
   "lint-staged": {
     "*": "yarn 4c lint --fix"
   },
-  "jest": {
-    "preset": "@4c/jest-preset",
-    "testEnvironment": "node"
-  },
   "devDependencies": {
     "@4c/babel-preset": "^7.3.3",
     "@4c/cli": "^2.0.1",
-    "@4c/jest-preset": "^1.5.0",
     "@4c/prettier-config": "^1.1.0",
     "@4c/tsconfig": "^0.3.1",
     "@babel/cli": "^7.8.4",
@@ -67,7 +60,6 @@
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^4.2.3",
-    "jest": "^25.1.0",
     "karma": "^4.4.1",
     "karma-mocha-reporter": "^2.2.5",
     "karma-rollup-preprocessor": "^7.0.3",
