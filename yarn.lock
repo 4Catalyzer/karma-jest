@@ -1288,7 +1288,7 @@
     "@rollup/pluginutils" "^3.0.4"
     magic-string "^0.25.5"
 
-"@rollup/pluginutils@^3.0.4":
+"@rollup/pluginutils@^3.0.4", "@rollup/pluginutils@^3.0.8":
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-3.0.8.tgz#4e94d128d94b90699e517ef045422960d18c8fde"
   integrity sha512-rYGeAc4sxcZ+kPG/Tw4/fwJODC3IXHYDH4qusdN/b6aLw5LPUbzpecYbEJh4sVQGPFJxd2dBU4kc1H3oy9/bnw==
@@ -2453,7 +2453,7 @@ ci-info@^2.0.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
 
-cjs-es@^0.8.0:
+cjs-es@^0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/cjs-es/-/cjs-es-0.8.2.tgz#3a4358f8cbc6caffcabf3282e5b56052cb1e7962"
   integrity sha512-Z3AHuD0KH36hntFdT5M4c921ygkALhuRRaX8QyYhuOgoHBLeZItE5G3CMg/+m5NQ6b1revYp7Th2h6F8J56i2g==
@@ -7949,14 +7949,14 @@ rollup-plugin-babel@^4.4.0:
     "@babel/helper-module-imports" "^7.0.0"
     rollup-pluginutils "^2.8.1"
 
-rollup-plugin-cjs-es@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-cjs-es/-/rollup-plugin-cjs-es-0.9.0.tgz#1159f686f2b9726d9cd7b687ee2cc0d95253f1b7"
-  integrity sha512-f77iObgNDEWPoD9+X1JqiPr9vRpkvFfbPc7nlGEUd4wmqgo2GolPynkvuwp8IaKD8nGz0XmwmmErrIt15cX+Rg==
+rollup-plugin-cjs-es@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-cjs-es/-/rollup-plugin-cjs-es-1.0.0.tgz#f5c7b36bdf6210813bbf7a28d5e21f4bcda300a7"
+  integrity sha512-Qnw1cSRJltBCWIoQGW3XcRghzFJqGjt+jJOg58HAb7bfAgO7FMkndmMDruKuh7Vl5c6EA1QiwzGIJYjrYMIjPA==
   dependencies:
-    cjs-es "^0.8.0"
+    "@rollup/pluginutils" "^3.0.8"
+    cjs-es "^0.8.2"
     es-info "^0.3.0"
-    rollup-pluginutils "^2.8.1"
 
 rollup-plugin-commonjs@^10.1.0:
   version "10.1.0"
