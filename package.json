@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@4c/babel-preset": "^7.3.3",
-    "@4c/cli": "^2.0.1",
+    "@4c/cli": "^2.1.1",
     "@4c/prettier-config": "^1.1.0",
     "@4c/tsconfig": "^0.3.1",
     "@babel/cli": "^7.8.4",
@@ -46,8 +46,8 @@
     "@rollup/plugin-replace": "^2.3.1",
     "@types/karma": "^4.4.0",
     "@types/node": "*",
-    "@typescript-eslint/eslint-plugin": "^2.22.0",
-    "@typescript-eslint/parser": "^2.22.0",
+    "@typescript-eslint/eslint-plugin": "^2.23.0",
+    "@typescript-eslint/parser": "^2.23.0",
     "browser-jest-message-util": "npm:jest-message-util@25.1.0",
     "browser-jest-snapshot": "npm:jest-snapshot@25.1.0",
     "browser-jest-util": "npm:jest-util@25.1.0",
@@ -66,7 +66,7 @@
     "lint-staged": "^10.0.8",
     "patch-package": "^6.2.1",
     "prettier": "^1.19.1",
-    "rollup": "^2.0.2",
+    "rollup": "^2.0.6",
     "rollup-plugin-alias": "^2.2.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-cjs-es": "^1.0.0",
@@ -74,7 +74,7 @@
     "rollup-plugin-node-polyfills": "^0.2.1",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-visualizer": "^3.3.1",
+    "rollup-plugin-visualizer": "^3.3.2",
     "typescript": "^3.8.3"
   },
   "dependencies": {
