@@ -10,7 +10,7 @@ require('@babel/register')({
 const rollupConfig = require('./rollup.config');
 const karmaJest = require('./src');
 
-module.exports = config => {
+module.exports = (config) => {
   config.set({
     // logLevel: 'error',
     files: [

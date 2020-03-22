@@ -129,7 +129,7 @@ function convertTestToResult(test: Circus.TestEntry): Result {
     time: test.duration || 0,
     success: test.errors.length === 0,
     skipped: test.status === 'skip',
-    log: failureMessages.map(msg => colors.unstyle(msg)),
+    log: failureMessages.map((msg) => colors.unstyle(msg)),
     errors: failureMessages,
     assertionResult: {
       status,

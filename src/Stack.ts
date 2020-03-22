@@ -27,7 +27,7 @@ async function mapLocation(
   try {
     const url = new URL(fileName!);
     const filePath = url.pathname.replace('/base/', `${basePath}/`);
-    const file = files.find(f => f.path === filePath);
+    const file = files.find((f) => f.path === filePath);
 
     frame.fileName = filePath;
 
@@ -71,7 +71,7 @@ export async function cleanStack(
   const { stack, message } = separateMessageFromStack(error);
 
   const lines = await Promise.all(
-    StackParser.parse({ stack, message, name: '' }).map(f =>
+    StackParser.parse({ stack, message, name: '' }).map((f) =>
       mapLocation(f, basePath, sourceFiles),
     ),
   );
