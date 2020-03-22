@@ -54,7 +54,7 @@ module.exports = [
       format: 'cjs',
       sourcemap: true,
     },
-    external: id =>
+    external: (id) =>
       !id.startsWith('.') && !id.startsWith('/') && !id.startsWith('\0'),
     plugins: [
       replace({

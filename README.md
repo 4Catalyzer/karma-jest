@@ -19,7 +19,7 @@ yarn add karma-jest -D
 In your karma config:
 
 ```js
-module.exports = config => {
+module.exports = (config) => {
   config.set({
     // add your test files
     files: ['test/**/*.test.js'],

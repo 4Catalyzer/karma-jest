@@ -95,10 +95,10 @@ export default class Printer {
 
   private isSuiteComplete(items: Suite): boolean {
     const isCompleted = items.tests.every(
-      t => this.testCount.get(t.title) === this.numBrowsers,
+      (t) => this.testCount.get(t.title) === this.numBrowsers,
     );
 
-    return isCompleted && items.suites.every(s => this.isSuiteComplete(s));
+    return isCompleted && items.suites.every((s) => this.isSuiteComplete(s));
   }
 
   addTestResult(testResult: Result) {
@@ -118,7 +118,7 @@ export default class Printer {
         this.numFailedTests++;
       }
 
-      let matchingSuite = targetSuite.suites.find(s => s.title === title);
+      let matchingSuite = targetSuite.suites.find((s) => s.title === title);
       if (!matchingSuite) {
         matchingSuite = { suites: [], tests: [], title };
         targetSuite.suites.push(matchingSuite);
@@ -148,7 +148,7 @@ export default class Printer {
 
   private printTests(tests: Array<AssertionResult>, indentLevel: number) {
     if (this.verbose) {
-      tests.forEach(test => this.printTest(test, indentLevel));
+      tests.forEach((test) => this.printTest(test, indentLevel));
     } else {
       const summedTests = tests.reduce<{
         pending: Array<AssertionResult>;
@@ -206,14 +206,14 @@ export default class Printer {
 
     this.printTests(suite.tests, indentLevel + 1);
 
-    suite.suites.forEach(s => this.printSuite(s, indentLevel + 1));
+    suite.suites.forEach((s) => this.printSuite(s, indentLevel + 1));
   }
 
   async printFailures(basePath: string, sourceFiles?: SourceFile[]) {
     const errs = await Promise.all(
-      Array.from(this.results, async err => {
+      Array.from(this.results, async (err) => {
         err.assertionResult.failureMessages = await Promise.all(
-          err.assertionResult.failureMessages.map(msg =>
+          err.assertionResult.failureMessages.map((msg) =>
             cleanStack(msg, basePath, sourceFiles || []),
           ),
         );
@@ -254,7 +254,7 @@ export default class Printer {
       );
 
       snapshot.uncheckedKeysByFile.push(
-        ...browserSnapState.uncheckedKeysBySuite.map(f => ({
+        ...browserSnapState.uncheckedKeysBySuite.map((f) => ({
           ...f,
           filePath: resolver(f.suite),
         })),
@@ -302,7 +302,7 @@ export default class Printer {
         'press u',
       );
       this.write('\n');
-      snapshotSummary.forEach(l => this.write(`${l}\n`));
+      snapshotSummary.forEach((l) => this.write(`${l}\n`));
     }
   }
 

@@ -47,7 +47,7 @@ export default class SnapshotState {
   errored = 0;
 
   static serialize(suites: SnapshotSuite[]): SerializedSnapshotSuite[] {
-    return suites.map(suite => ({
+    return suites.map((suite) => ({
       ...suite,
       snapshots: Array.from(suite.snapshots.values()),
     }));
@@ -57,7 +57,7 @@ export default class SnapshotState {
     this.data = new Map(window.__snapshots__.suites);
 
     this.snapshots = new Map(
-      Array.from(window.__snapshots__.suites).flatMap(d =>
+      Array.from(window.__snapshots__.suites).flatMap((d) =>
         Array.from(d[1].snapshots),
       ),
     );
@@ -83,7 +83,7 @@ export default class SnapshotState {
   }
 
   markSnapshotsAsCheckedForTest(testName: string): void {
-    this.uncheckedKeys.forEach(uncheckedKey => {
+    this.uncheckedKeys.forEach((uncheckedKey) => {
       // this isn't quite right but IDK
       if (uncheckedKey.startsWith(`${testName}:`)) {
         this.uncheckedKeys.delete(uncheckedKey);
