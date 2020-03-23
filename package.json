@@ -23,7 +23,8 @@
     "lib"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "directory": "lib"
   },
   "prettier": "@4c/prettier-config",
   "husky": {
