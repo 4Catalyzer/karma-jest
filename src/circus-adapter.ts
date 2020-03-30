@@ -8,7 +8,7 @@ import expect from 'expect';
 import * as TestGlobals from 'jest-circus';
 import run from 'jest-circus/build/run';
 import RunnerState from 'jest-circus/build/state';
-import JestMock from 'jest-mock';
+import Mock from 'jest-mock';
 
 import getTestPath from './getTestPath';
 import SnapshotState from './snapshot/State';
@@ -32,15 +32,35 @@ const fakeTimers = new FakeTimers({
   },
 } as any);
 
-const jest = {
-  fn: JestMock.fn.bind(JestMock),
-  spyOn: JestMock.spyOn.bind(JestMock),
+export type KarmaJest = {
+  fn: typeof Mock.fn;
+  spyOn: typeof Mock.spyOn;
+  setTimeout: (msToRun: number) => KarmaJest;
+  advanceTimersByTime: (msToRun: number) => void;
+  advanceTimersToNextTimer: (steps?: number) => void;
+  clearAllTimers: () => void;
+
+  getTimerCount: () => void;
+  // not supported in lolex
+  // runAllImmediates: () => fakeTimers.runAllImmediates(),
+  runAllTicks: () => void;
+  runAllTimers: () => void;
+  runOnlyPendingTimers: () => void;
+  runTimersToTime: (msToRun: number) => void;
+
+  useFakeTimers: () => KarmaJest;
+  useRealTimers: () => KarmaJest;
+};
+
+const karmaJest: KarmaJest = {
+  fn: Mock.fn.bind(Mock),
+  spyOn: Mock.spyOn.bind(Mock),
 
   setTimeout: (timeoutMs: number) => {
     // @ts-ignore
     global[testTimeoutSymbol] = timeoutMs;
 
-    return jest;
+    return karmaJest;
   },
 
   advanceTimersByTime: (msToRun: number) =>
@@ -60,11 +80,11 @@ const jest = {
 
   useFakeTimers: () => {
     fakeTimers.useFakeTimers();
-    return jest;
+    return karmaJest;
   },
   useRealTimers: () => {
     fakeTimers.useRealTimers();
-    return jest;
+    return karmaJest;
   },
 };
 
@@ -72,7 +92,7 @@ const jest = {
 window.expect = expect;
 
 // @ts-ignore
-window.jest = jest;
+window.karmaJest = karmaJest;
 
 Object.assign(window, TestGlobals);
 

@@ -108,7 +108,7 @@ function Reporter(
   // this seems to be the only way to get the result of karma.complete()
   emitter.on('browser_complete', (browser: any, results: any) => {
     config.client.snapshotRefreshing = false;
-    if (results.snapshotState) {
+    if (results?.snapshotState) {
       allSnapshotState[browser.name] = results.snapshotState;
     }
   });

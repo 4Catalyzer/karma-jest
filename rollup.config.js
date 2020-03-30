@@ -10,7 +10,10 @@ module.exports = [
     input: 'src/circus-adapter.ts',
     output: {
       file: 'lib/circus-adapter.js',
-      intro: 'const process = { env: {} }',
+      format: 'iife',
+      intro:
+        'const process = { env: {}, cwd: () => "/" };\n' +
+        'const Buffer = () => {}',
       sourcemap: true,
     },
     plugins: [
@@ -59,6 +62,10 @@ module.exports = [
     plugins: [
       replace({
         'process.env.NODE_ENV': JSON.stringify('production'),
+      }),
+      replace({
+        'delimiters': ["'", "'"],
+        './circus-adapter.ts': '"./circus-adapter"',
       }),
       resolve({
         browser: false,
