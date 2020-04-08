@@ -1,17 +1,17 @@
 diff --git a/node_modules/browser-jest-message-util/build/index.js b/node_modules/browser-jest-message-util/build/index.js
-index 64bb7fa..84b5d8b 100644
+index 7755a70..f0b1150 100644
 --- a/node_modules/browser-jest-message-util/build/index.js
 +++ b/node_modules/browser-jest-message-util/build/index.js
-@@ -11,8 +11,6 @@ Object.defineProperty(exports, 'Frame', {
+@@ -5,8 +5,6 @@ Object.defineProperty(exports, '__esModule', {
  });
  exports.separateMessageFromStack = exports.formatResultsErrors = exports.formatStackTrace = exports.getTopFrame = exports.getStackTraceLines = exports.formatExecError = void 0;
-
+ 
 -var fs = _interopRequireWildcard(require('fs'));
 -
  var path = _interopRequireWildcard(require('path'));
-
+ 
  var _chalk = _interopRequireDefault(require('chalk'));
-@@ -76,7 +74,7 @@ function _interopRequireWildcard(obj) {
+@@ -68,7 +66,7 @@ function _interopRequireWildcard(obj) {
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var jestReadFile =
@@ -20,10 +20,10 @@ index 64bb7fa..84b5d8b 100644
  // stack utils tries to create pretty stack by making paths relative.
  const stackUtils = new _stackUtils.default({
    cwd: 'something which does not exist'
-@@ -122,23 +120,6 @@ const trim = string => (string || '').trim(); // Some errors contain not only li
+@@ -114,23 +112,6 @@ const trim = string => (string || '').trim(); // Some errors contain not only li
  const trimPaths = string =>
    string.match(STACK_PATH_REGEXP) ? trim(string) : string;
-
+ 
 -const getRenderedCallsite = (fileContent, line, column) => {
 -  let renderedCallsite = (0, _codeFrame.codeFrameColumns)(
 -    fileContent,
@@ -41,11 +41,11 @@ index 64bb7fa..84b5d8b 100644
 -  renderedCallsite = `\n${renderedCallsite}\n`;
 -  return renderedCallsite;
 -};
-
- const blankStringRegexp = /^\s*$/; // ExecError is an error thrown outside of the test suite (not inside an `it` or
- // `before/after each` hooks). If it's thrown, none of the tests in the file
-@@ -291,28 +272,10 @@ exports.getTopFrame = getTopFrame;
-
+ 
+ const blankStringRegexp = /^\s*$/;
+ 
+@@ -308,28 +289,10 @@ exports.getTopFrame = getTopFrame;
+ 
  const formatStackTrace = (stack, config, options, testPath) => {
    const lines = getStackTraceLines(stack, options);
 -  const topFrame = getTopFrame(lines);
@@ -53,7 +53,7 @@ index 64bb7fa..84b5d8b 100644
    const relativeTestPath = testPath
      ? (0, _slash.default)(path.relative(config.rootDir, testPath))
      : null;
-
+ 
 -  if (topFrame) {
 -    const {column, file: filename, line} = topFrame;
 -
@@ -70,27 +70,29 @@ index 64bb7fa..84b5d8b 100644
 -      }
 -    }
 -  }
-
+ 
    const stacktrace = lines
      .filter(Boolean)
-@@ -321,49 +284,11 @@ const formatStackTrace = (stack, config, options, testPath) => {
+@@ -338,51 +301,11 @@ const formatStackTrace = (stack, config, options, testPath) => {
          STACK_INDENT + formatPaths(config, relativeTestPath, trimPaths(line))
      )
      .join('\n');
 -  return `${renderedCallsite}\n${stacktrace}`;
 +  return `\n${stacktrace}`;
  };
-
+ 
  exports.formatStackTrace = formatStackTrace;
-
+ 
 -const formatResultsErrors = (testResults, config, options, testPath) => {
 -  const failedResults = testResults.reduce((errors, result) => {
--    result.failureMessages.forEach(content =>
--      errors.push({
--        content,
--        result
--      })
--    );
+-    result.failureMessages
+-      .map(checkForCommonEnvironmentErrors)
+-      .forEach(content =>
+-        errors.push({
+-          content,
+-          result
+-        })
+-      );
 -    return errors;
 -  }, []);
 -
@@ -122,5 +124,5 @@ index 64bb7fa..84b5d8b 100644
 -
 -exports.formatResultsErrors = formatResultsErrors;
  const errorRegexp = /^Error:?\s*$/;
-
+ 
  const removeBlankErrorLine = str =>

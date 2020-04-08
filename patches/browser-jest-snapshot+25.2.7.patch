@@ -31,9 +31,9 @@ index c85c3c4..747f041 100644
 -  return chalkInstance.magenta.bgYellowBright;
 +  return (input) => `\u001b[38;5;127m\u001b[48;5;225m${chalkInstance.unstyle(input)}\u001b[49m\u001b[39m`
  };
-
+ 
  exports.getSnapshotColorForChalkInstance = getSnapshotColorForChalkInstance;
-
+ 
  const getReceivedColorForChalkInstance = chalkInstance => {
 -  const level = chalkInstance.level;
 -
@@ -60,34 +60,31 @@ index c85c3c4..747f041 100644
 -  return chalkInstance.cyan.bgWhiteBright; // also known as teal
 +  return (input) => `\u001b[38;5;30m\u001b[48;5;195m${chalkInstance.unstyle(input)}\u001b[49m\u001b[39m`
  };
-
+ 
  exports.getReceivedColorForChalkInstance = getReceivedColorForChalkInstance;
 diff --git a/node_modules/browser-jest-snapshot/build/utils.js b/node_modules/browser-jest-snapshot/build/utils.js
-index 4459a38..202c375 100644
+index 4f27d05..bf68ae6 100644
 --- a/node_modules/browser-jest-snapshot/build/utils.js
 +++ b/node_modules/browser-jest-snapshot/build/utils.js
-@@ -3,18 +3,10 @@
- Object.defineProperty(exports, '__esModule', {
-   value: true
+@@ -5,16 +5,8 @@ Object.defineProperty(exports, '__esModule', {
  });
--exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = exports.escapeBacktickString = exports.deserializeString = exports.minify = exports.serialize = exports.removeLinesBeforeExternalMatcherTrap = exports.removeExtraLineBreaks = exports.addExtraLineBreaks = exports.getSnapshotData = exports.keyToTestName = exports.testNameToKey = exports.SNAPSHOT_VERSION_WARNING = exports.SNAPSHOT_GUIDE_LINK = exports.SNAPSHOT_VERSION = void 0;
--
+ exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = exports.escapeBacktickString = exports.deserializeString = exports.minify = exports.serialize = exports.removeLinesBeforeExternalMatcherTrap = exports.removeExtraLineBreaks = exports.addExtraLineBreaks = exports.getSnapshotData = exports.keyToTestName = exports.testNameToKey = exports.SNAPSHOT_VERSION_WARNING = exports.SNAPSHOT_GUIDE_LINK = exports.SNAPSHOT_VERSION = void 0;
+ 
 -var fs = _interopRequireWildcard(require('fs'));
-+exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = exports.escapeBacktickString = exports.deserializeString = exports.minify = exports.serialize = exports.removeLinesBeforeExternalMatcherTrap = exports.removeExtraLineBreaks = exports.addExtraLineBreaks = void 0;
-
+-
  var path = _interopRequireWildcard(require('path'));
-
--var _mkdirp = require('mkdirp');
+ 
+-var _makeDir = _interopRequireDefault(require('make-dir'));
 -
 -var _naturalCompare = _interopRequireDefault(require('natural-compare'));
 -
 -var _chalk = _interopRequireDefault(require('chalk'));
 -
  var _prettyFormat = _interopRequireDefault(require('pretty-format'));
-
+ 
  var _plugins = require('./plugins');
-@@ -118,134 +110,14 @@ function _defineProperty(obj, key, value) {
-
+@@ -118,134 +110,13 @@ function _defineProperty(obj, key, value) {
+ 
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var jestWriteFile =
 -  global[Symbol.for('jest-native-write-file')] || fs.writeFileSync;
@@ -200,8 +197,7 @@ index 4459a38..202c375 100644
 -      populate(data);
 -    } catch (e) {}
 -  }
-+  global[Symbol.for('jest-native-exists-file')] || (() => {});
-
+-
 -  const validationResult = validateSnapshotVersion(snapshotContents);
 -  const isInvalid = snapshotContents && validationResult;
 -
@@ -221,24 +217,25 @@ index 4459a38..202c375 100644
 -// to make the content easier to read.
 -
 -exports.getSnapshotData = getSnapshotData;
-
++  global[Symbol.for('jest-native-exists-file')] || (() => {});
+ 
  const addExtraLineBreaks = string =>
    string.includes('\n') ? `\n${string}\n` : string; // Remove extra line breaks at beginning and end of multiline snapshot.
-@@ -310,77 +182,4 @@ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
-
+@@ -310,77 +181,3 @@ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
+ 
  exports.escapeBacktickString = escapeBacktickString;
-
+ 
 -const printBacktickString = str => '`' + escapeBacktickString(str) + '`';
 -
 -const ensureDirectoryExists = filePath => {
 -  try {
--    (0, _mkdirp.sync)(path.join(path.dirname(filePath)), '777');
+-    _makeDir.default.sync(path.join(path.dirname(filePath)));
 -  } catch (e) {}
 -};
 -
 -exports.ensureDirectoryExists = ensureDirectoryExists;
 -
- const normalizeNewlines = string => string.replace(/\r\n|\r/g, '\n');
+-const normalizeNewlines = string => string.replace(/\r\n|\r/g, '\n');
 -
 -const saveSnapshotFile = (snapshotData, snapshotPath) => {
 -  const snapshots = Object.keys(snapshotData)
@@ -275,7 +272,7 @@ index 4459a38..202c375 100644
 -    }
 -  });
 -  return mergedOutput;
--};
+-}; // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 -
 -const deepMerge = (target, source) => {
 -  const mergedOutput = _objectSpread({}, target);

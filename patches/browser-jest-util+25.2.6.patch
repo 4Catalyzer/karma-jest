@@ -1,5 +1,5 @@
 diff --git a/node_modules/browser-jest-util/build/index.js b/node_modules/browser-jest-util/build/index.js
-index 3d35d92..2cb4144 100644
+index 5abe3c8..d30f83f 100644
 --- a/node_modules/browser-jest-util/build/index.js
 +++ b/node_modules/browser-jest-util/build/index.js
 @@ -3,172 +3,36 @@
@@ -8,82 +8,82 @@ index 3d35d92..2cb4144 100644
  });
 -Object.defineProperty(exports, 'clearLine', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _clearLine.default;
 -  }
 -});
 -Object.defineProperty(exports, 'createDirectory', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _createDirectory.default;
 -  }
 -});
 +
  Object.defineProperty(exports, 'ErrorWithStack', {
    enumerable: true,
-   get: function() {
+   get: function () {
      return _ErrorWithStack.default;
    }
  });
 -Object.defineProperty(exports, 'installCommonGlobals', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _installCommonGlobals.default;
 -  }
 -});
 -Object.defineProperty(exports, 'interopRequireDefault', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _interopRequireDefault.default;
 -  }
 -});
 -Object.defineProperty(exports, 'isInteractive', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _isInteractive.default;
 -  }
 -});
 +
  Object.defineProperty(exports, 'isPromise', {
    enumerable: true,
-   get: function() {
+   get: function () {
      return _isPromise.default;
    }
  });
 -Object.defineProperty(exports, 'setGlobal', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _setGlobal.default;
 -  }
 -});
 -Object.defineProperty(exports, 'deepCyclicCopy', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _deepCyclicCopy.default;
 -  }
 -});
 +
  Object.defineProperty(exports, 'convertDescriptorToString', {
    enumerable: true,
-   get: function() {
+   get: function () {
      return _convertDescriptorToString.default;
    }
  });
 -Object.defineProperty(exports, 'replacePathSepForGlob', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _replacePathSepForGlob.default;
 -  }
 -});
 -Object.defineProperty(exports, 'testPathPatternToRegExp', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _testPathPatternToRegExp.default;
 -  }
 -});
 -Object.defineProperty(exports, 'pluralize', {
 -  enumerable: true,
--  get: function() {
+-  get: function () {
 -    return _pluralize.default;
 -  }
 -});
@@ -136,7 +136,7 @@ index 3d35d92..2cb4144 100644
 -function _getRequireWildcardCache() {
 -  if (typeof WeakMap !== 'function') return null;
 -  var cache = new WeakMap();
--  _getRequireWildcardCache = function() {
+-  _getRequireWildcardCache = function () {
 -    return cache;
 -  };
 -  return cache;
