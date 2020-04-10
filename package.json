@@ -61,7 +61,7 @@
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^4.2.3",
-    "karma": "^4.4.1",
+    "karma": "^5.0.1",
     "karma-mocha-reporter": "^2.2.5",
     "karma-rollup-preprocessor": "^7.0.5",
     "lint-staged": "^10.1.2",
