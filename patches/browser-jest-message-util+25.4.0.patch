@@ -1,5 +1,5 @@
 diff --git a/node_modules/browser-jest-message-util/build/index.js b/node_modules/browser-jest-message-util/build/index.js
-index 7755a70..f0b1150 100644
+index 28ae464..6fece92 100644
 --- a/node_modules/browser-jest-message-util/build/index.js
 +++ b/node_modules/browser-jest-message-util/build/index.js
 @@ -5,8 +5,6 @@ Object.defineProperty(exports, '__esModule', {
@@ -44,42 +44,35 @@ index 7755a70..f0b1150 100644
  
  const blankStringRegexp = /^\s*$/;
  
-@@ -308,28 +289,10 @@ exports.getTopFrame = getTopFrame;
- 
- const formatStackTrace = (stack, config, options, testPath) => {
-   const lines = getStackTraceLines(stack, options);
--  const topFrame = getTopFrame(lines);
--  let renderedCallsite = '';
-   const relativeTestPath = testPath
+@@ -314,27 +295,6 @@ const formatStackTrace = (stack, config, options, testPath) => {
      ? (0, _slash.default)(path.relative(config.rootDir, testPath))
      : null;
  
--  if (topFrame) {
--    const {column, file: filename, line} = topFrame;
+-  if (!options.noCodeFrame) {
+-    const topFrame = getTopFrame(lines);
 -
--    if (line && filename && path.isAbsolute(filename)) {
--      let fileContent;
+-    if (topFrame) {
+-      const {column, file: filename, line} = topFrame;
 -
--      try {
--        // TODO: check & read HasteFS instead of reading the filesystem:
--        // see: https://github.com/facebook/jest/pull/5405#discussion_r164281696
--        fileContent = jestReadFile(filename, 'utf8');
--        renderedCallsite = getRenderedCallsite(fileContent, line, column);
--      } catch (e) {
--        // the file does not exist or is inaccessible, we ignore
+-      if (line && filename && path.isAbsolute(filename)) {
+-        let fileContent;
+-
+-        try {
+-          // TODO: check & read HasteFS instead of reading the filesystem:
+-          // see: https://github.com/facebook/jest/pull/5405#discussion_r164281696
+-          fileContent = jestReadFile(filename, 'utf8');
+-          renderedCallsite = getRenderedCallsite(fileContent, line, column);
+-        } catch (e) {
+-          // the file does not exist or is inaccessible, we ignore
+-        }
 -      }
 -    }
 -  }
- 
+-
    const stacktrace = lines
      .filter(Boolean)
-@@ -338,51 +301,11 @@ const formatStackTrace = (stack, config, options, testPath) => {
-         STACK_INDENT + formatPaths(config, relativeTestPath, trimPaths(line))
-     )
-     .join('\n');
--  return `${renderedCallsite}\n${stacktrace}`;
-+  return `\n${stacktrace}`;
- };
+     .map(
+@@ -349,46 +309,6 @@ const formatStackTrace = (stack, config, options, testPath) => {
  
  exports.formatStackTrace = formatStackTrace;
  

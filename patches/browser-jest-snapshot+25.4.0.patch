@@ -63,7 +63,7 @@ index c85c3c4..747f041 100644
  
  exports.getReceivedColorForChalkInstance = getReceivedColorForChalkInstance;
 diff --git a/node_modules/browser-jest-snapshot/build/utils.js b/node_modules/browser-jest-snapshot/build/utils.js
-index 4f27d05..bf68ae6 100644
+index f4437d3..404c4d0 100644
 --- a/node_modules/browser-jest-snapshot/build/utils.js
 +++ b/node_modules/browser-jest-snapshot/build/utils.js
 @@ -5,16 +5,8 @@ Object.defineProperty(exports, '__esModule', {
@@ -83,8 +83,8 @@ index 4f27d05..bf68ae6 100644
  var _prettyFormat = _interopRequireDefault(require('pretty-format'));
  
  var _plugins = require('./plugins');
-@@ -118,134 +110,13 @@ function _defineProperty(obj, key, value) {
- 
+@@ -68,134 +60,13 @@ function _interopRequireWildcard(obj) {
+ var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var jestWriteFile =
 -  global[Symbol.for('jest-native-write-file')] || fs.writeFileSync;
@@ -221,10 +221,11 @@ index 4f27d05..bf68ae6 100644
  
  const addExtraLineBreaks = string =>
    string.includes('\n') ? `\n${string}\n` : string; // Remove extra line breaks at beginning and end of multiline snapshot.
-@@ -310,77 +181,3 @@ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
+@@ -259,78 +130,3 @@ exports.deserializeString = deserializeString;
+ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
  
  exports.escapeBacktickString = escapeBacktickString;
- 
+-
 -const printBacktickString = str => '`' + escapeBacktickString(str) + '`';
 -
 -const ensureDirectoryExists = filePath => {
@@ -275,7 +276,7 @@ index 4f27d05..bf68ae6 100644
 -}; // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 -
 -const deepMerge = (target, source) => {
--  const mergedOutput = _objectSpread({}, target);
+-  const mergedOutput = {...target};
 -
 -  if (isObject(target) && isObject(source)) {
 -    Object.keys(source).forEach(key => {
