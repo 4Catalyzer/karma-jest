@@ -92,7 +92,7 @@
     "@types/mocha": "^7.0.1",
     "ansi-colors": "^4.1.1",
     "error-stack-parser": "^2.0.6",
-    "expect": "^25.1.0",
+    "expect": "^26.0.0",
     "jest-circus": "^26.0.0",
     "jest-message-util": "^26.0.0",
     "jest-mock": "^26.0.0",

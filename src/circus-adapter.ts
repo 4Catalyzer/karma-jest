@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle, no-param-reassign */
 
-import FakeTimers from '@jest/fake-timers/build/FakeTimersLolex';
+import FakeTimers from '@jest/fake-timers/build/modernFakeTimers';
 import { AssertionResult } from '@jest/test-result';
 import { Circus } from '@jest/types';
 import colors from 'ansi-colors';
@@ -166,9 +166,9 @@ function convertTestToResult(test: Circus.TestEntry): Result {
 }
 
 function getTotal(block: Circus.DescribeBlock) {
-  let total = block.tests.length;
+  let total = 0;
   for (const child of block.children) {
-    total += getTotal(child);
+    total += child.type === 'test' ? 1 : getTotal(child);
   }
   return total;
 }
