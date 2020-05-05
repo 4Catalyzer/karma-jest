@@ -29,6 +29,7 @@ module.exports = [
           // Node builtins
           'assert': require.resolve('./src/shims/assert.js'),
           'fs': require.resolve('./src/shims/empty-obj.js'),
+          'module': require.resolve('./src/shims/empty-obj.js'),
           'process': require.resolve('./src/shims/empty-obj.js'),
           'path': require.resolve(
             'rollup-plugin-node-polyfills/polyfills/path',

@@ -1,8 +1,8 @@
 diff --git a/node_modules/browser-jest-util/build/index.js b/node_modules/browser-jest-util/build/index.js
-index 5abe3c8..d30f83f 100644
+index c092352..efa7e36 100644
 --- a/node_modules/browser-jest-util/build/index.js
 +++ b/node_modules/browser-jest-util/build/index.js
-@@ -3,172 +3,36 @@
+@@ -3,188 +3,45 @@
  Object.defineProperty(exports, '__esModule', {
    value: true
  });
@@ -87,6 +87,19 @@ index 5abe3c8..d30f83f 100644
 -    return _pluralize.default;
 -  }
 -});
++
+ Object.defineProperty(exports, 'formatTime', {
+   enumerable: true,
+   get: function () {
+     return _formatTime.default;
+   }
+ });
+-Object.defineProperty(exports, 'tryRealpath', {
+-  enumerable: true,
+-  get: function () {
+-    return _tryRealpath.default;
+-  }
+-});
 -exports.preRunMessage = exports.specialChars = void 0;
 -
 -var _clearLine = _interopRequireDefault2(require('./clearLine'));
@@ -132,6 +145,10 @@ index 5abe3c8..d30f83f 100644
 -exports.preRunMessage = preRunMessage;
 -
 -var _pluralize = _interopRequireDefault2(require('./pluralize'));
+-
+ var _formatTime = _interopRequireDefault2(require('./formatTime'));
+ 
+-var _tryRealpath = _interopRequireDefault2(require('./tryRealpath'));
 -
 -function _getRequireWildcardCache() {
 -  if (typeof WeakMap !== 'function') return null;
