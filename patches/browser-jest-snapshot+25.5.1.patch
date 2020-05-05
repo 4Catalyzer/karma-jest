@@ -63,17 +63,15 @@ index c85c3c4..747f041 100644
  
  exports.getReceivedColorForChalkInstance = getReceivedColorForChalkInstance;
 diff --git a/node_modules/browser-jest-snapshot/build/utils.js b/node_modules/browser-jest-snapshot/build/utils.js
-index f4437d3..404c4d0 100644
+index fc49330..404c4d0 100644
 --- a/node_modules/browser-jest-snapshot/build/utils.js
 +++ b/node_modules/browser-jest-snapshot/build/utils.js
-@@ -5,16 +5,8 @@ Object.defineProperty(exports, '__esModule', {
- });
- exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = exports.escapeBacktickString = exports.deserializeString = exports.minify = exports.serialize = exports.removeLinesBeforeExternalMatcherTrap = exports.removeExtraLineBreaks = exports.addExtraLineBreaks = exports.getSnapshotData = exports.keyToTestName = exports.testNameToKey = exports.SNAPSHOT_VERSION_WARNING = exports.SNAPSHOT_GUIDE_LINK = exports.SNAPSHOT_VERSION = void 0;
+@@ -7,14 +7,6 @@ exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = e
  
--var fs = _interopRequireWildcard(require('fs'));
--
  var path = _interopRequireWildcard(require('path'));
  
+-var fs = _interopRequireWildcard(require('graceful-fs'));
+-
 -var _makeDir = _interopRequireDefault(require('make-dir'));
 -
 -var _naturalCompare = _interopRequireDefault(require('natural-compare'));
