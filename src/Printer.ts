@@ -95,7 +95,7 @@ export default class Printer {
 
   private isSuiteComplete(items: Suite): boolean {
     const isCompleted = items.tests.every(
-      (t) => this.testCount.get(t.title) === this.numBrowsers,
+      (t) => this.testCount.get(t.fullName) === this.numBrowsers,
     );
 
     return isCompleted && items.suites.every((s) => this.isSuiteComplete(s));
@@ -105,6 +105,7 @@ export default class Printer {
     const { assertionResult } = testResult;
     let targetSuite = this.root;
 
+    // console.log('add:', assertionResult.ancestorTitles);
     // Find the target suite for this test,
     // creating nested suites as necessary.
     for (const title of assertionResult.ancestorTitles) {
@@ -129,9 +130,9 @@ export default class Printer {
 
     this.results.add(testResult);
 
-    const count = (this.testCount.get(testResult.description) ?? 0) + 1;
+    const count = (this.testCount.get(assertionResult.fullName) ?? 0) + 1;
 
-    this.testCount.set(testResult.description, count);
+    this.testCount.set(assertionResult.fullName, count);
 
     if (count === this.numBrowsers) {
       this.printSuite(this.root);
