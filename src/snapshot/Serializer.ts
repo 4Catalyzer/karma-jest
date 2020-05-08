@@ -76,7 +76,7 @@ export function save(
 
   for (const suite of summary.result) {
     const filepath = resolver(suite.name);
-
+    console.log('HERE', filepath);
     if (!suite.snapshots.length) {
       fs.unlinkSync(resolver(suite.name));
       wrote = true;

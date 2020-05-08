@@ -12,6 +12,7 @@ const karmaJest = require('./src');
 
 module.exports = (config) => {
   config.set({
+    browsers: ['Firefox'],
     // logLevel: 'error',
     files: [
       /**
@@ -20,7 +21,13 @@ module.exports = (config) => {
        */
       { pattern: 'test/**/*.test.js', watched: false },
     ],
-    plugins: ['karma-rollup-preprocessor', 'karma-mocha-reporter', karmaJest],
+    plugins: [
+      'karma-rollup-preprocessor',
+      'karma-mocha-reporter',
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      karmaJest,
+    ],
     frameworks: ['jest'],
     reporters: ['jest'], // ['mocha'],
     preprocessors: {

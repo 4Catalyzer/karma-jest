@@ -31,9 +31,9 @@ index c85c3c4..747f041 100644
 -  return chalkInstance.magenta.bgYellowBright;
 +  return (input) => `\u001b[38;5;127m\u001b[48;5;225m${chalkInstance.unstyle(input)}\u001b[49m\u001b[39m`
  };
- 
+
  exports.getSnapshotColorForChalkInstance = getSnapshotColorForChalkInstance;
- 
+
  const getReceivedColorForChalkInstance = chalkInstance => {
 -  const level = chalkInstance.level;
 -
@@ -60,16 +60,16 @@ index c85c3c4..747f041 100644
 -  return chalkInstance.cyan.bgWhiteBright; // also known as teal
 +  return (input) => `\u001b[38;5;30m\u001b[48;5;195m${chalkInstance.unstyle(input)}\u001b[49m\u001b[39m`
  };
- 
+
  exports.getReceivedColorForChalkInstance = getReceivedColorForChalkInstance;
 diff --git a/node_modules/browser-jest-snapshot/build/utils.js b/node_modules/browser-jest-snapshot/build/utils.js
-index fc49330..404c4d0 100644
+index fc49330..bbd0499 100644
 --- a/node_modules/browser-jest-snapshot/build/utils.js
 +++ b/node_modules/browser-jest-snapshot/build/utils.js
 @@ -7,14 +7,6 @@ exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = e
- 
+
  var path = _interopRequireWildcard(require('path'));
- 
+
 -var fs = _interopRequireWildcard(require('graceful-fs'));
 -
 -var _makeDir = _interopRequireDefault(require('make-dir'));
@@ -79,7 +79,7 @@ index fc49330..404c4d0 100644
 -var _chalk = _interopRequireDefault(require('chalk'));
 -
  var _prettyFormat = _interopRequireDefault(require('pretty-format'));
- 
+
  var _plugins = require('./plugins');
 @@ -68,134 +60,13 @@ function _interopRequireWildcard(obj) {
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
@@ -216,14 +216,13 @@ index fc49330..404c4d0 100644
 -
 -exports.getSnapshotData = getSnapshotData;
 +  global[Symbol.for('jest-native-exists-file')] || (() => {});
- 
+
  const addExtraLineBreaks = string =>
    string.includes('\n') ? `\n${string}\n` : string; // Remove extra line breaks at beginning and end of multiline snapshot.
-@@ -259,78 +130,3 @@ exports.deserializeString = deserializeString;
- const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
- 
+@@ -260,77 +131,4 @@ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
+
  exports.escapeBacktickString = escapeBacktickString;
--
+
 -const printBacktickString = str => '`' + escapeBacktickString(str) + '`';
 -
 -const ensureDirectoryExists = filePath => {
@@ -298,3 +297,4 @@ index fc49330..404c4d0 100644
 -};
 -
 -exports.deepMerge = deepMerge;
++const normalizeNewlines = string => string.replace(/\r\n|\r/g, '\n')

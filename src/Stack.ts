@@ -56,7 +56,8 @@ async function mapLocation(
       )
       .replace(`:${line}`, `:${original.line}`)
       .replace(`:${column}`, `:${original.column}`);
-  } catch {
+  } catch (err) {
+    console.error(err);
     /* ignore */
   }
 
@@ -64,16 +65,21 @@ async function mapLocation(
 }
 
 export async function cleanStack(
-  error: string,
+  error: any,
   basePath: string,
   sourceFiles: SourceFile[],
 ) {
-  const { stack, message } = separateMessageFromStack(error);
+  const { stack, message = '' } =
+    typeof error === 'string' ? separateMessageFromStack(error) : error;
+
+  if (!stack) return message || error;
 
   const lines = await Promise.all(
     StackParser.parse({ stack, message, name: '' }).map((f) =>
       mapLocation(f, basePath, sourceFiles),
     ),
   );
+
+  // .filter((line) => line?.match(/build\/ErrorWithStack/))
   return `${message}\n${lines.join('\n')}`;
 }

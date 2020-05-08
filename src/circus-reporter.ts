@@ -4,18 +4,24 @@ import path from 'path';
 
 // import { constants } from 'karma';
 
+// @ts-ignore
+import useragent from 'ua-parser-js';
+
 import Printer from './Printer';
-import { SourceFile } from './Stack';
+import { SourceFile, cleanStack } from './Stack';
 import * as Serializer from './snapshot/Serializer';
 import { SnapshotSummary } from './snapshot/State';
 import { Result } from './types';
 
+function browserShortName(fullname: string) {
+  return useragent(fullname).browser.name;
+}
 function resolveSnapshotPath(
   snapshotPath: string,
   suiteName: string,
-  _browser: string,
+  browser: string,
 ) {
-  return path.join(snapshotPath, `${suiteName}.md`);
+  return path.join(snapshotPath, `${suiteName}__${browser}.md`);
 }
 
 const CLEAR =
@@ -60,12 +66,17 @@ function Reporter(
   // pass the update state to the client
   config.client.snapshotUpdate = update;
 
-  function updateSnapshots() {
+  // Juuuust mutate this global config to disable the client
+  // handling logs since we'll do that
+  config.client.jestCaptureConsole = config.client.captureConsole ?? true;
+  config.client.captureConsole = false;
+
+  function updateSnapshots(up: typeof update = 'all') {
     Object.entries(allSnapshotState).forEach(([browser, state]) => {
       const resolver = (name: string) =>
         resolveSnapshotPath(fullSnapshotPath, name, browser);
 
-      Serializer.save(resolver, state, 'all');
+      Serializer.save(resolver, state, up);
     });
   }
 
@@ -105,23 +116,67 @@ function Reporter(
     lastServedFiles = files.served;
   });
 
-  // this seems to be the only way to get the result of karma.complete()
-  emitter.on('browser_complete', (browser: any, results: any) => {
-    config.client.snapshotRefreshing = false;
-    if (results?.snapshotState) {
-      allSnapshotState[browser.name] = results.snapshotState;
-    }
-  });
-
   const printer = new Printer({
     write: reporter.write.bind(reporter),
     numBrowsers: config.browsers?.length || 1,
+    processError: (err) => {
+      return cleanStack(err, config.basePath, lastServedFiles || []);
+    },
     snapshotResolver: (name, browser) =>
       resolveSnapshotPath(fullSnapshotPath, name, browser),
   });
 
-  this.onRunStart = () => {
+  this.writeCommonMsg = (msg: string) => {
+    printer.printMsg(msg);
+  };
+
+  this.onBrowserComplete = (browser: any, results: any) => {
+    config.client.snapshotRefreshing = false;
+    if (results?.snapshotState) {
+      allSnapshotState[browserShortName(browser.fullName)] =
+        results.snapshotState;
+    }
+  };
+
+  // unhandled client errors
+  this.onBrowserError = async (browser: any, error: any) => {
+    if (error.includes('Disconnected')) return;
+
+    printer.printHeader('fail', printer.browserDisplayName(browser));
+    await printer.printError(error.trim());
+
+    if (!config.singleRun) {
+      reporter.write('\n');
+      printer.printWatchPrompt();
+    }
+  };
+
+  this.onBrowserInfo = (browser: any, info: any) => {
+    if (info.log) {
+      this.writeCommonMsg(info.log);
+      return;
+    }
+
+    switch (info.jestType) {
+      case 'log':
+        printer.addLog(info.payload);
+        break;
+      case 'run_start':
+        info.payload.forEach((name: string) => {
+          printer.addRootSuite(name, browser);
+        });
+        break;
+
+      case 'rootSuite_finish':
+        printer.rootSuiteFinished(info.payload.name, browser);
+        break;
+      default:
+    }
+  };
+
+  this.onRunStart = (_browser: any) => {
     reporter.write(CLEAR);
+
     allSnapshotState = {};
     printer.runStart();
 
@@ -133,17 +188,18 @@ function Reporter(
     printer.addTestResult(result);
   };
 
-  // TODO: buffer and display console from browsers
-  // this.onBrowserLog = (browser, log, type) => {
-  //   console.log('HERERERERERER', log, type);
-  // };
-
   this.onRunComplete = async (_browsers: any, result: any) => {
+    printer.runFinished();
+
     if (result.failed) {
-      await printer.printFailures(config.basePath, lastServedFiles);
+      await printer.printFailures();
     }
 
-    printer.printSummary(allSnapshotState);
+    if (update === 'new' && config.browsers?.length <= 1) {
+      updateSnapshots(update);
+    }
+
+    await printer.printSummary(allSnapshotState);
 
     if (!config.singleRun) {
       reporter.write('\n');

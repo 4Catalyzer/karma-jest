@@ -1,10 +1,12 @@
 interface KarmaClient {
+  isDEBUG?: boolean;
+
   result(msg: {}): any;
   info(msg: {}): any;
   complete(msg: {}): any;
 
   start(): any;
-
+  stringify(arg: any): string;
   config?: any;
 }
 

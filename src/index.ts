@@ -6,17 +6,21 @@ import * as Serializer from './snapshot/Serializer';
 
 const createPattern = (pattern: string): any => ({
   pattern,
+  type: 'js',
   included: true,
   served: true,
   watched: false,
 });
 
 function initCircus(
+  karmaConfig: any,
   jest: Config,
   basePath: string,
   files: any[],
   preprocessors: any,
 ) {
+  karmaConfig.customDebugFile = require.resolve('./assets/debug.html');
+
   jest.snapshotPath = jest.snapshotPath || '__snapshots__';
 
   const snapGlob = path.isAbsolute(jest.snapshotPath)
@@ -30,6 +34,7 @@ function initCircus(
 }
 
 initCircus.$inject = [
+  'config',
   'config.jest',
   'config.basePath',
   'config.files',

@@ -1,45 +1,59 @@
 describe('suite', () => {
-  it('works', () => {});
-  // describe('nested', () => {
-  //   it('should work', () => {
-  //     expect(true).toEqual(true);
-  //   });
-  // });
+  it.todo('works');
 
-  // it('should work 1', () => {
-  //   const spy = jest.fn();
-  //   console.log(spy);
+  describe('nested', () => {
+    it.skip('should work', () => {
+      console.log('heylooo');
+      expect(true).toEqual(true);
+    });
+  });
 
-  //   jest.useFakeTimers();
+  it('should work 1', () => {
+    const spy = karmaJest.fn();
 
-  //   let finished = false;
-  //   setTimeout(() => {
-  //     finished = true;
-  //   }, 300);
+    karmaJest.useFakeTimers();
 
-  //   expect(true).toEqual(true);
+    let finished = false;
+    setTimeout(() => {
+      finished = true;
+    }, 300);
 
-  //   jest.runAllTimers();
+    expect(true).toEqual(true);
 
-  //   expect(finished).toEqual(true);
+    karmaJest.runAllTimers();
 
-  //   jest.useRealTimers();
-  // });
+    expect(finished).toEqual(true);
 
-  // describe('nested 2', () => {
-  //   it('should work 2', () => {
-  //     expect(true).toEqual(false);
-  //     expect(`
-  //     asfasffffffffffff
-  //     `).toMatchSnapshot();
-  //   });
+    karmaJest.useRealTimers();
+  });
 
-  //   it('should work 3', () => {
-  //     expect(true).toEqual(true);
-  //   });
-  // });
+  describe('nested 2', () => {
+    it('should work 2', () => {
+      // expect(true).toEqual(false);
+      expect(`
+      asfasffffffffffff
+      `).toMatchSnapshot();
+    });
+
+    it('should work 3', () => {
+      expect(true).toEqual(true);
+    });
+  });
+});
+
+describe('suite 3', () => {
+  it('works', (done) => {
+    setTimeout(() => {
+      done();
+    }, 1000);
+  });
 });
 
 describe('different', () => {
-  it('works', () => {});
+  it('works', (done) => {
+    console.log('heylooo');
+    setTimeout(() => {
+      done();
+    }, 4000);
+  });
 });
