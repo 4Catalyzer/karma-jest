@@ -35,6 +35,9 @@
   "lint-staged": {
     "*": "yarn 4c lint --fix"
   },
+  "peerDependencies": {
+    "karma": "*"
+  },
   "devDependencies": {
     "@4c/babel-preset": "^7.3.4",
     "@4c/cli": "^2.1.9",

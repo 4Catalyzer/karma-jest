@@ -1,10 +1,10 @@
 // eslint-disable-next-line max-classes-per-file
 class ErrorWithStack extends Error {
-  constructor(message: string | undefined, callsite: Function) {
+  constructor(message: string | undefined) {
     super(message);
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, callsite);
+      Error.captureStackTrace(this);
     }
   }
 }
@@ -21,12 +21,12 @@ export default class Console {
     original = window.console;
     const proxiedConsole = new Console();
 
-    if (
-      proxiedConsole.karma.isDEBUG ||
-      proxiedConsole.karma.config.jestCaptureConsole === false
-    ) {
-      return original;
-    }
+    // if (
+    //   proxiedConsole.karma.isDEBUG ||
+    //   proxiedConsole.karma.config.jestCaptureConsole === false
+    // ) {
+    //   return original;
+    // }
 
     ['log', 'info', 'warn', 'error', 'debug'].forEach(
       (type: keyof typeof original & LogType) => {
@@ -43,8 +43,8 @@ export default class Console {
   }
 
   private write(type: LogType, args: any[]) {
-    const { stack } = new ErrorWithStack(undefined, Console.prototype.write);
-    const origin = stack!.split('\n').slice(3).filter(Boolean).join('\n');
+    const { stack } = new ErrorWithStack(undefined);
+    const origin = stack!.split('\n').slice(4).filter(Boolean).join('\n');
 
     this.karma.info({
       jestType: 'log',

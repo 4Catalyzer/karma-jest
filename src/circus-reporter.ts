@@ -2,8 +2,7 @@
 
 import path from 'path';
 
-// import { constants } from 'karma';
-
+import { constants } from 'karma';
 // @ts-ignore
 import useragent from 'ua-parser-js';
 
@@ -35,6 +34,18 @@ export interface Config {
   update?: 'new' | 'all' | false;
 }
 
+function shouldLog(type: string, level?: string) {
+  console.log('l', level);
+  if (!level) return false;
+
+  type = type.toUpperCase();
+
+  const logPriority = constants.LOG_PRIORITIES.indexOf(
+    level.toUpperCase() as any,
+  );
+  return constants.LOG_PRIORITIES.indexOf(type as any) <= logPriority;
+}
+
 function Reporter(
   this: any,
   baseReporterDecorator: any,
@@ -50,6 +61,8 @@ function Reporter(
 
   let lastServedFiles = [] as SourceFile[];
   let allSnapshotState: Record<string, SnapshotSummary> = {};
+
+  const { browserConsoleLogOptions } = config;
 
   const jestConfig: Config = config.jest || {};
   const {
@@ -159,7 +172,8 @@ function Reporter(
 
     switch (info.jestType) {
       case 'log':
-        printer.addLog(info.payload);
+        if (shouldLog(info.payload.type, browserConsoleLogOptions?.level))
+          printer.addLog(info.payload);
         break;
       case 'run_start':
         info.payload.forEach((name: string) => {

@@ -6,6 +6,9 @@
     "prettier",
     "4catalyzer-typescript"
   ],
+  "globals": {
+    "karmaJest": false
+  },
   "env": {
     "node": true
   },

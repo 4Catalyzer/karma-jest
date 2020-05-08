@@ -12,7 +12,7 @@ const karmaJest = require('./src');
 
 module.exports = (config) => {
   config.set({
-    browsers: ['Firefox'],
+    browsers: ['FirefoxCustom'],
     // logLevel: 'error',
     files: [
       /**
@@ -44,6 +44,9 @@ module.exports = (config) => {
         sourcemap: 'inline',
       },
     },
+    // browserConsoleLogOptions: {
+    //   level: 'warn',
+    // },
     customPreprocessors: {
       rolluplib: {
         base: 'rollup',
@@ -54,6 +57,15 @@ module.exports = (config) => {
               'const Buffer = () => {}',
             sourcemap: 'inline',
           },
+        },
+      },
+    },
+    customLaunchers: {
+      FirefoxCustom: {
+        base: 'Firefox',
+        prefs: {
+          'toolkit.telemetry.reportingpolicy.firstRun': false,
+          'extensions.enabledScopes': 0,
         },
       },
     },

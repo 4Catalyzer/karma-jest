@@ -1,9 +1,18 @@
+// eslint-disable-next-line spaced-comment
+/// <reference path="../src/index.d.ts" />
+
 describe('suite', () => {
   it.todo('works');
 
   describe('nested', () => {
-    it.skip('should work', () => {
+    it('should work', () => {
+      console.debug('heylooo');
+
       console.log('heylooo');
+
+      console.warn('heylooo');
+
+      console.error('heylooo');
       expect(true).toEqual(true);
     });
   });
@@ -11,6 +20,7 @@ describe('suite', () => {
   it('should work 1', () => {
     const spy = karmaJest.fn();
 
+    spy();
     karmaJest.useFakeTimers();
 
     let finished = false;
