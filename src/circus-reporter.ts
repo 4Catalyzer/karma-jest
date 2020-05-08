@@ -35,7 +35,6 @@ export interface Config {
 }
 
 function shouldLog(type: string, level?: string) {
-  console.log('l', level);
   if (!level) return false;
 
   type = type.toUpperCase();

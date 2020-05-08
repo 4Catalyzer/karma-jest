@@ -44,7 +44,7 @@ export default class Console {
 
   private write(type: LogType, args: any[]) {
     const { stack } = new ErrorWithStack(undefined);
-    const origin = stack!.split('\n').slice(4).filter(Boolean).join('\n');
+    const origin = stack!.split('\n').slice(5).filter(Boolean).join('\n');
 
     this.karma.info({
       jestType: 'log',

@@ -12,7 +12,7 @@ const karmaJest = require('./src');
 
 module.exports = (config) => {
   config.set({
-    browsers: ['FirefoxCustom'],
+    browsers: ['Chrome'],
     // logLevel: 'error',
     files: [
       /**
