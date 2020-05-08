@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "patch-package",
-    "build": "rollup -c rollup.config.js",
+    "build": "rollup -c rollup.config.js && cp -r src/assets lib/assets",
     "format": "4c format src './*'",
     "lint": "4c lint src './*'",
     "prepublishOnly": "yarn run build",
