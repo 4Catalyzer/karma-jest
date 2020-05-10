@@ -47,7 +47,7 @@ At the momement there is only one option:
 Because a browser is very different environment from Node, there are a few
 key differences with how `karma-jest` works compared to Jest.
 
-- Compiling and bundling test files is up to you. Use which ever karma preprocessor
+- Compiling and bundling test files is up to you. Use whichever Karma preprocessor
   is appropriate for your project, probably `karma-webpack` or `karma-preprocessor-rollup`.
 - Tests are organized by top level describe blocks instead of test files.
   this means `.only` tests apply to the entire test suite, and snapshots are located in a **single directory** organized by suite name, instead of file name.
