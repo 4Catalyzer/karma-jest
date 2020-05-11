@@ -14,7 +14,7 @@ const createPattern = (pattern: string): any => ({
 
 function initCircus(
   karmaConfig: any,
-  jest: Config,
+  jest: Config = {},
   basePath: string,
   files: any[],
   preprocessors: any,
