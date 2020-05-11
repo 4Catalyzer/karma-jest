@@ -6,13 +6,16 @@ describe('suite', () => {
 
   describe('nested', () => {
     it('should work', () => {
-      console.debug('heylooo');
+      // console.debug('heylooo');
 
-      console.log('heylooo');
+      // console.log('heylooo');
 
-      console.warn('heylooo');
+      // console.warn('heylooo');
 
-      console.error('heylooo');
+      // console.error('heylooo');
+
+      // eslint-disable-next-line no-undef
+      console.log('heylooo', document.createElement('div'), [1, 23, 4]);
       expect(true).toEqual(true);
     });
   });
@@ -61,7 +64,6 @@ describe('suite 3', () => {
 
 describe('different', () => {
   it('works', (done) => {
-    console.log('heylooo');
     setTimeout(() => {
       done();
     }, 4000);

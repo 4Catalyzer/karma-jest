@@ -102,6 +102,7 @@
     "jest-snapshot": "^26.0.0",
     "jest-util": "^26.0.0",
     "marked": "^1.0.0",
+    "pretty-format": "^26.0.1",
     "source-map": "^0.7.3",
     "ua-parser-js": "^0.7.21"
   }

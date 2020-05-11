@@ -1,4 +1,7 @@
-// eslint-disable-next-line max-classes-per-file
+/* eslint-disable max-classes-per-file */
+
+import prettyFormat from 'pretty-format';
+
 class ErrorWithStack extends Error {
   constructor(message: string | undefined) {
     super(message);
@@ -13,6 +16,11 @@ export type LogType = 'debug' | 'error' | 'info' | 'log' | 'warn';
 
 let original: typeof console;
 
+const printOptions = {
+  maxDepth: 5,
+  plugins: Object.values(prettyFormat.plugins),
+};
+
 export default class Console {
   // eslint-disable-next-line no-underscore-dangle
   private karma = window.__karma__;
@@ -21,12 +29,12 @@ export default class Console {
     original = window.console;
     const proxiedConsole = new Console();
 
-    // if (
-    //   proxiedConsole.karma.isDEBUG ||
-    //   proxiedConsole.karma.config.jestCaptureConsole === false
-    // ) {
-    //   return original;
-    // }
+    if (
+      proxiedConsole.karma.isDEBUG ||
+      proxiedConsole.karma.config.jestCaptureConsole === false
+    ) {
+      return original;
+    }
 
     ['log', 'info', 'warn', 'error', 'debug'].forEach(
       (type: keyof typeof original & LogType) => {
@@ -49,7 +57,7 @@ export default class Console {
     this.karma.info({
       jestType: 'log',
       payload: {
-        message: args.join(' '),
+        message: args.map((a) => prettyFormat(a, printOptions)).join(' '),
         type,
         origin,
       },
