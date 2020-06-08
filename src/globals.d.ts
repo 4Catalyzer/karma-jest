@@ -11,7 +11,9 @@ interface KarmaClient {
 }
 
 interface Window {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   __karma__: KarmaClient;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   __snapshots__: {
     suites: Map<string, import('./snapshot/types').SnapshotSuite>;
   };
