@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle, no-param-reassign */
+/* eslint-disable no-param-reassign */
 
 import FakeTimers from '@jest/fake-timers/build/modernFakeTimers';
 import { AssertionResult } from '@jest/test-result';
@@ -23,10 +23,12 @@ type MatcherState = SnapshotMatcherState & {
   unhandledErrors: Error[];
 };
 
+// eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention
 const { __karma__: karma } = window;
 
 const testTimeoutSymbol = Symbol.for('TEST_TIMEOUT_SYMBOL');
 
+// eslint-disable-next-line no-underscore-dangle
 window.__snapshots__ = window.__snapshots__ || { suites: new Map() };
 
 const fakeTimers = new FakeTimers({
