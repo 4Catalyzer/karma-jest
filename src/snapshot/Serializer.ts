@@ -21,7 +21,12 @@ export function deserialize(content: string): SnapshotSuite {
 
   let root = '';
   let snapshot: Snapshot | undefined;
+
   for (const token of tokens) {
+    if (!('type' in token)) {
+      continue;
+    }
+
     switch (token.type) {
       case 'heading':
         if (token.depth === 1) root = token.text;
