@@ -91,7 +91,7 @@
     "@jest/types": "^26.0.0",
     "@rollup/plugin-alias": "^3.0.1",
     "@types/babel__code-frame": "^7.0.1",
-    "@types/marked": "^0.7.2",
+    "@types/marked": "^1.1.0",
     "@types/mocha": "^7.0.1",
     "ansi-colors": "^4.1.1",
     "error-stack-parser": "^2.0.6",
