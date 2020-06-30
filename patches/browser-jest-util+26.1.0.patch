@@ -1,8 +1,8 @@
 diff --git a/node_modules/browser-jest-util/build/index.js b/node_modules/browser-jest-util/build/index.js
-index c092352..efa7e36 100644
+index a6e9ffa..23ea944 100644
 --- a/node_modules/browser-jest-util/build/index.js
 +++ b/node_modules/browser-jest-util/build/index.js
-@@ -3,188 +3,45 @@
+@@ -3,196 +3,41 @@
  Object.defineProperty(exports, '__esModule', {
    value: true
  });
@@ -18,7 +18,6 @@ index c092352..efa7e36 100644
 -    return _createDirectory.default;
 -  }
 -});
-+
  Object.defineProperty(exports, 'ErrorWithStack', {
    enumerable: true,
    get: function () {
@@ -43,7 +42,6 @@ index c092352..efa7e36 100644
 -    return _isInteractive.default;
 -  }
 -});
-+
  Object.defineProperty(exports, 'isPromise', {
    enumerable: true,
    get: function () {
@@ -62,7 +60,6 @@ index c092352..efa7e36 100644
 -    return _deepCyclicCopy.default;
 -  }
 -});
-+
  Object.defineProperty(exports, 'convertDescriptorToString', {
    enumerable: true,
    get: function () {
@@ -81,13 +78,18 @@ index c092352..efa7e36 100644
 -    return _testPathPatternToRegExp.default;
 -  }
 -});
+-Object.defineProperty(exports, 'globsToMatcher', {
+-  enumerable: true,
+-  get: function () {
+-    return _globsToMatcher.default;
+-  }
+-});
 -Object.defineProperty(exports, 'pluralize', {
 -  enumerable: true,
 -  get: function () {
 -    return _pluralize.default;
 -  }
 -});
-+
  Object.defineProperty(exports, 'formatTime', {
    enumerable: true,
    get: function () {
@@ -139,6 +141,8 @@ index c092352..efa7e36 100644
 -var _testPathPatternToRegExp = _interopRequireDefault2(
 -  require('./testPathPatternToRegExp')
 -);
+-
+-var _globsToMatcher = _interopRequireDefault2(require('./globsToMatcher'));
 -
 -var preRunMessage = _interopRequireWildcard(require('./preRunMessage'));
 -
