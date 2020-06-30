@@ -63,16 +63,14 @@ index c85c3c4..747f041 100644
  
  exports.getReceivedColorForChalkInstance = getReceivedColorForChalkInstance;
 diff --git a/node_modules/browser-jest-snapshot/build/utils.js b/node_modules/browser-jest-snapshot/build/utils.js
-index fc49330..bbd0499 100644
+index 215ebb5..8e53431 100644
 --- a/node_modules/browser-jest-snapshot/build/utils.js
 +++ b/node_modules/browser-jest-snapshot/build/utils.js
-@@ -7,14 +7,6 @@ exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = e
+@@ -7,12 +7,6 @@ exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = e
  
  var path = _interopRequireWildcard(require('path'));
  
 -var fs = _interopRequireWildcard(require('graceful-fs'));
--
--var _makeDir = _interopRequireDefault(require('make-dir'));
 -
 -var _naturalCompare = _interopRequireDefault(require('natural-compare'));
 -
@@ -81,7 +79,7 @@ index fc49330..bbd0499 100644
  var _prettyFormat = _interopRequireDefault(require('pretty-format'));
  
  var _plugins = require('./plugins');
-@@ -68,134 +60,13 @@ function _interopRequireWildcard(obj) {
+@@ -66,134 +60,13 @@ function _interopRequireWildcard(obj) {
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var Symbol = global['jest-symbol-do-not-touch'] || global.Symbol;
  var jestWriteFile =
@@ -219,7 +217,7 @@ index fc49330..bbd0499 100644
  
  const addExtraLineBreaks = string =>
    string.includes('\n') ? `\n${string}\n` : string; // Remove extra line breaks at beginning and end of multiline snapshot.
-@@ -260,77 +131,4 @@ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
+@@ -258,79 +131,4 @@ const escapeBacktickString = str => str.replace(/`|\\|\${/g, '\\$&');
  
  exports.escapeBacktickString = escapeBacktickString;
  
@@ -227,13 +225,15 @@ index fc49330..bbd0499 100644
 -
 -const ensureDirectoryExists = filePath => {
 -  try {
--    _makeDir.default.sync(path.join(path.dirname(filePath)));
+-    fs.mkdirSync(path.join(path.dirname(filePath)), {
+-      recursive: true
+-    });
 -  } catch (e) {}
 -};
 -
 -exports.ensureDirectoryExists = ensureDirectoryExists;
 -
--const normalizeNewlines = string => string.replace(/\r\n|\r/g, '\n');
+ const normalizeNewlines = string => string.replace(/\r\n|\r/g, '\n');
 -
 -const saveSnapshotFile = (snapshotData, snapshotPath) => {
 -  const snapshots = Object.keys(snapshotData)
@@ -297,4 +297,3 @@ index fc49330..bbd0499 100644
 -};
 -
 -exports.deepMerge = deepMerge;
-+const normalizeNewlines = string => string.replace(/\r\n|\r/g, '\n')
