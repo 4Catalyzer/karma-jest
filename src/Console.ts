@@ -2,6 +2,8 @@
 
 import prettyFormat from 'pretty-format';
 
+import { LogType } from './types';
+
 class ErrorWithStack extends Error {
   constructor(message: string | undefined) {
     super(message);
@@ -11,8 +13,6 @@ class ErrorWithStack extends Error {
     }
   }
 }
-
-export type LogType = 'debug' | 'error' | 'info' | 'log' | 'warn';
 
 let original: typeof console;
 

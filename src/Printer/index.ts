@@ -16,9 +16,8 @@ import {
 // @ts-ignore
 import useragent from 'ua-parser-js';
 
-import { LogType } from '../Console';
 import { SnapshotSummary } from '../snapshot/State';
-import { Result } from '../types';
+import { LogType, Result } from '../types';
 
 const isWindows = process.platform === 'win32';
 const ARROW = ' \u203A ';
@@ -83,6 +82,8 @@ export default class Printer {
     { suite: string; browser: any }
   >();
 
+  private currentTestByRootSuite = new Map<string, string>();
+
   private startTime: number = Date.now();
 
   private write: (log: string) => void;
@@ -95,11 +96,11 @@ export default class Printer {
 
   results = new Set<Result>();
 
+  numEstimatedTotalTests = 0;
+
   private logs = new Set<LogEntry>();
 
   private processError: (error: string | Error) => Promise<string>;
-
-  // status: Status;
 
   clear = '';
 
@@ -130,12 +131,13 @@ export default class Printer {
     return isCompleted && items.suites.every((s) => this.isSuiteComplete(s));
   }
 
-  runStart() {
+  runStart(numEstimatedTotalTests = 0) {
     this.root = { suites: [], tests: [], title: '' };
     this.testCount.clear();
     this.results.clear();
     this.logs.clear();
 
+    this.numEstimatedTotalTests = numEstimatedTotalTests;
     this.numFailedTests = 0;
     this.numSkippedTests = 0;
     this.numTodoTests = 0;
@@ -148,6 +150,7 @@ export default class Printer {
 
     this.rootSuitesDone.clear();
     this.rootSuitesRunning.clear();
+    this.currentTestByRootSuite.clear();
 
     this.startTime = Date.now();
     this.clear = '';
@@ -181,6 +184,16 @@ export default class Printer {
 
     this.rootSuitesRunning.delete(key);
     this.rootSuitesDone.set(key, { suite, browser });
+
+    this.printStatus();
+  }
+
+  addTestStart(testName: string, suite: string, browser: any) {
+    const key = suiteKey(suite, browser);
+
+    if (!this.rootSuitesRunning.has(key)) return;
+
+    this.currentTestByRootSuite.set(key, testName);
 
     this.printStatus();
   }
@@ -224,10 +237,6 @@ export default class Printer {
     const count = (this.testCount.get(assertionResult.fullName) ?? 0) + 1;
 
     this.testCount.set(assertionResult.fullName, count);
-
-    // if (count === this.numBrowsers) {
-    //   this.printSuite(this.root);
-    // }
   }
 
   addLog(log: LogEntry) {
@@ -263,6 +272,30 @@ export default class Printer {
     return `${prefix} ${message}`;
   }
 
+  private getSummary(snapshot?: JestSnapshotSummary) {
+    const width = process.stdout.columns!;
+    const emptyResult = makeEmptyAggregatedTestResult();
+
+    return getSummary(
+      {
+        ...emptyResult,
+
+        numFailedTests: this.numFailedTests,
+        numPendingTests: this.numSkippedTests,
+        numTodoTests: this.numTodoTests,
+        numTotalTests: this.results.size,
+
+        numPassedTests: this.numPassedTests,
+        numFailedTestSuites: this.failedSuites.size,
+        numPassedTestSuites: this.passedSuites.size,
+        numTotalTestSuites: this.root.suites.length,
+        startTime: this.startTime,
+        snapshot: snapshot || emptyResult.snapshot,
+      },
+      { width },
+    );
+  }
+
   printHeader(
     status: 'fail' | 'pass' | 'running',
     message: string,
@@ -290,7 +323,7 @@ export default class Printer {
     this.write(formatExecError(error, globalConfig, { noStackTrace: false }));
   }
 
-  printStatus() {
+  printStatus(withSummary = true) {
     // console.log('clear', this.clear, height);
     let count = 0;
 
@@ -308,12 +341,33 @@ export default class Printer {
       content += '\n';
       count++;
     }
-    this.rootSuitesRunning.forEach(({ suite, browser }) => {
+    this.rootSuitesRunning.forEach(({ suite, browser }, key) => {
       count++;
-      content += `${this.getHeader('running', suite, browser)}\n`;
+      content += `${this.getHeader('running', suite, browser)}`;
+
+      const currentTest = this.currentTestByRootSuite.get(key);
+      if (currentTest) content += `  ${colors.dim(`${currentTest}…`)}`;
+      content += '\n';
     });
 
-    this.write(`${this.clear}${content}\n`);
+    let summary = '';
+    if (withSummary) {
+      summary = `\n\n${this.getSummary()}`;
+
+      const progressWidth = Math.min(40, process.stdout.columns!);
+      if (progressWidth >= 2) {
+        const total = this.numEstimatedTotalTests || 1;
+        const perComplete = Math.min(this.results.size, total) / total;
+        const length = Math.floor(perComplete * progressWidth);
+        summary += `\n\n${colors.green('█').repeat(length)}${colors
+          .white('█')
+          .repeat(progressWidth - length)}`;
+      }
+
+      count += summary.split('\n').length;
+    }
+
+    this.write(`${this.clear}${content}${summary}\n`);
 
     this.clear = '\r\x1B[K\r\x1B[1A'.repeat(count);
   }
@@ -405,10 +459,7 @@ export default class Printer {
   }
 
   async printSummary(snapshotState: Record<string, SnapshotSummary>) {
-    const width = process.stdout.columns!;
-    const emptyResult = makeEmptyAggregatedTestResult();
-
-    const { snapshot } = emptyResult;
+    const { snapshot } = makeEmptyAggregatedTestResult();
     for (const [browser, browserSnapState] of Object.entries(snapshotState)) {
       const resolver = (name: string) => this.snapshotResolver(name, browser);
 
@@ -433,24 +484,7 @@ export default class Printer {
       );
     }
 
-    const summary = getSummary(
-      {
-        ...emptyResult,
-
-        numFailedTests: this.numFailedTests,
-        numPendingTests: this.numSkippedTests,
-        numTodoTests: this.numTodoTests,
-        numTotalTests: this.results.size,
-
-        numPassedTests: this.numPassedTests,
-        numFailedTestSuites: this.failedSuites.size,
-        numPassedTestSuites: this.passedSuites.size,
-        numTotalTestSuites: this.root.suites.length,
-        startTime: this.startTime,
-        snapshot,
-      },
-      { width },
-    );
+    this.printStatus(false);
 
     try {
       this.printSnapshotSummary(snapshot);
@@ -460,7 +494,7 @@ export default class Printer {
 
     await this.printConsole();
 
-    this.write(`\n${summary}\n`);
+    this.write(`\n${this.getSummary(snapshot)}\n`);
   }
 
   async printConsole() {

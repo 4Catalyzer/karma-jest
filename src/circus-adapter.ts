@@ -15,7 +15,7 @@ import Console from './Console';
 import getTestPath from './getTestPath';
 import SnapshotState from './snapshot/State';
 import snapshotMatchers, { SnapshotMatcherState } from './snapshot/matchers';
-import { Result } from './types';
+import { KarmaJestActions, Result } from './types';
 
 const console = Console.proxy();
 
@@ -154,13 +154,16 @@ function convertTestToResult(test: Circus.TestEntry): Result {
   }
   const notRun = test.status === 'skip' || test.status === 'todo';
   const failed = !!test.errors.length;
-  // console.log(test.name, test.status);
+
   return {
     suite,
     description: test.name,
     time: test.duration || 0,
     failed,
     notRun,
+
+    skipped: notRun, // skipped is solely for the karma debug.js which looks at this property
+
     success: !failed,
     log: failureMessages.map((msg) => colors.unstyle(msg)),
     errors: failureMessages,
@@ -201,8 +204,8 @@ const addExpectedAssertionErrors = (test: Circus.TestEntry) => {
   test.errors = test.errors.concat(failures);
 };
 
-function emit(type: string, payload: any) {
-  karma.info({ jestType: type, payload });
+function emit<Action extends KarmaJestActions>(action: Action) {
+  karma.info(action);
 }
 
 function isRootDescribe(describeBlock: DescribeBlock) {
@@ -211,6 +214,7 @@ function isRootDescribe(describeBlock: DescribeBlock) {
     (c) => c.type === 'describeBlock' && c.name === describeBlock.name,
   );
 }
+
 RunnerState.addEventHandler((event: Circus.Event) => {
   switch (event.name) {
     case 'run_start': {
@@ -220,29 +224,47 @@ RunnerState.addEventHandler((event: Circus.Event) => {
         snapshot: new SnapshotState(karma.config?.snapshotUpdate),
       });
 
+      const total = getTotal(root);
       // this is not really important but Karma warns if you don't report the total
-      karma.info({ total: getTotal(root) });
-      emit(
-        'run_start',
-        root.children
-          .filter((c) => c.type === 'describeBlock')
-          .map((d) => d.name),
-      );
+      karma.info({ total });
+      emit({
+        jestType: 'run_start',
+        payload: {
+          totalTests: total,
+          rootSuites: root.children
+            .filter((c) => c.type === 'describeBlock')
+            .map((d) => d.name),
+        },
+      });
 
       break;
     }
     case 'run_describe_start':
       if (isRootDescribe(event.describeBlock))
-        emit('rootSuite_start', { name: event.describeBlock.name });
+        emit({
+          jestType: 'rootSuite_start',
+          payload: { name: event.describeBlock.name },
+        });
       break;
     case 'run_describe_finish':
       if (isRootDescribe(event.describeBlock))
-        emit('rootSuite_finish', { name: event.describeBlock.name });
+        emit({
+          jestType: 'rootSuite_finish',
+          payload: { name: event.describeBlock.name },
+        });
       break;
     case 'test_start': {
+      const currentTestPath = getTestPath(event.test);
       expect.setState({
         index: -1,
-        currentTestPath: getTestPath(event.test),
+        currentTestPath,
+      });
+      emit({
+        jestType: 'test_start',
+        payload: {
+          name: currentTestPath[currentTestPath.length - 1],
+          rootSuite: currentTestPath[0],
+        },
       });
       break;
     }

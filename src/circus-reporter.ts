@@ -10,7 +10,7 @@ import Printer from './Printer';
 import { SourceFile, cleanStack } from './Stack';
 import * as Serializer from './snapshot/Serializer';
 import { SnapshotSummary } from './snapshot/State';
-import { Result } from './types';
+import { KarmaJestActions, LogType, Result } from './types';
 
 function browserShortName(fullname: string) {
   return useragent(fullname).browser.name;
@@ -28,21 +28,22 @@ const CLEAR =
 
 const CONTROL_C = '\u0003';
 const CONTROL_D = '\u0004';
+const ENTER = '\r';
 
 export interface Config {
   snapshotPath?: string;
   update?: 'new' | 'all' | false;
 }
 
-function shouldLog(type: string, level?: string) {
+function shouldLog(type: LogType, level?: string) {
   if (!level) return false;
 
-  type = type.toUpperCase();
+  const priority = type.toUpperCase();
 
   const logPriority = constants.LOG_PRIORITIES.indexOf(
     level.toUpperCase() as any,
   );
-  return constants.LOG_PRIORITIES.indexOf(type as any) <= logPriority;
+  return constants.LOG_PRIORITIES.indexOf(priority as any) <= logPriority;
 }
 
 function Reporter(
@@ -117,6 +118,7 @@ function Reporter(
         // wasn't stale when saved?
         break;
       case 'a':
+      case ENTER:
         server.refreshFiles();
         break;
       default:
@@ -163,25 +165,40 @@ function Reporter(
     }
   };
 
+  /**
+   * This is the event funnel from karma.info() client calls
+   * Karma doies some basic logging, but mostly we override the behavior
+   * and use a more structured format to collect metadata about test progression
+   */
   this.onBrowserInfo = (browser: any, info: any) => {
     if (info.log) {
       this.writeCommonMsg(info.log);
       return;
     }
 
-    switch (info.jestType) {
+    const action = info as KarmaJestActions;
+
+    switch (action.jestType) {
       case 'log':
-        if (shouldLog(info.payload.type, browserConsoleLogOptions?.level))
-          printer.addLog(info.payload);
+        if (shouldLog(action.payload.type, browserConsoleLogOptions?.level))
+          printer.addLog(action.payload);
         break;
       case 'run_start':
-        info.payload.forEach((name: string) => {
+        printer.numEstimatedTotalTests = action.payload.totalTests;
+        action.payload.rootSuites.forEach((name: string) => {
           printer.addRootSuite(name, browser);
         });
         break;
 
+      case 'test_start':
+        printer.addTestStart(
+          action.payload.name,
+          action.payload.rootSuite,
+          browser,
+        );
+        break;
       case 'rootSuite_finish':
-        printer.rootSuiteFinished(info.payload.name, browser);
+        printer.rootSuiteFinished(action.payload.name, browser);
         break;
       default:
     }

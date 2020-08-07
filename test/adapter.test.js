@@ -63,9 +63,21 @@ describe('suite 3', () => {
 });
 
 describe('different', () => {
-  it('works', (done) => {
+  it('test 1', (done) => {
+    setTimeout(() => {
+      done();
+    }, 500);
+  });
+
+  it('test 2', (done) => {
     setTimeout(() => {
       done();
     }, 4000);
+  });
+
+  it('test 3', (done) => {
+    setTimeout(() => {
+      done();
+    }, 1000);
   });
 });
