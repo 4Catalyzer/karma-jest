@@ -21,6 +21,36 @@ const printOptions = {
   plugins: Object.values(prettyFormat.plugins),
 };
 
+function toMessage(args: any[]) {
+  const first = args.shift();
+  let msg = '';
+  if (typeof first === 'string') {
+    msg = first.replace(/%(s|d|i|j|o|O|c|%)/g, (_, type) => {
+      switch (type) {
+        case 's':
+          return prettyFormat(String(args.shift()), printOptions);
+        case 'd':
+          return prettyFormat(Number(args.shift()), printOptions);
+        case 'i':
+          return prettyFormat(parseInt(args.shift(), 10), printOptions);
+        case 'f':
+          return prettyFormat(parseFloat(args.shift()), printOptions);
+        case 'o':
+        case 'O':
+          return prettyFormat(args.shift(), printOptions);
+        case 'c':
+          return '';
+        case '%':
+          return '%';
+        default:
+          return '';
+      }
+    });
+  }
+
+  msg += ` ${args.map((a) => prettyFormat(a, printOptions)).join(' ')}`;
+  return msg;
+}
 export default class Console {
   // eslint-disable-next-line no-underscore-dangle
   private karma = window.__karma__;
@@ -57,7 +87,7 @@ export default class Console {
     this.karma.info({
       jestType: 'log',
       payload: {
-        message: args.map((a) => prettyFormat(a, printOptions)).join(' '),
+        message: toMessage(args),
         type,
         origin,
       },

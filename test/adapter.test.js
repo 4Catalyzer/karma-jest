@@ -15,7 +15,11 @@ describe('suite', () => {
       // console.error('heylooo');
 
       // eslint-disable-next-line no-undef
-      console.log('heylooo', document.createElement('div'), [1, 23, 4]);
+      console.log('heylooo %i', '1.46', document.createElement('div'), [
+        1,
+        23,
+        4,
+      ]);
       expect(true).toEqual(true);
     });
   });
@@ -72,7 +76,7 @@ describe('different', () => {
   it('test 2', (done) => {
     setTimeout(() => {
       done();
-    }, 4000);
+    }, 2000);
   });
 
   it('test 3', (done) => {
