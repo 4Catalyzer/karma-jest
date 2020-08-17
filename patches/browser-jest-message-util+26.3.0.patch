@@ -1,5 +1,5 @@
 diff --git a/node_modules/browser-jest-message-util/build/index.js b/node_modules/browser-jest-message-util/build/index.js
-index 7ca2a81..5a3ae6e 100644
+index 4d12a76..ebda3e2 100644
 --- a/node_modules/browser-jest-message-util/build/index.js
 +++ b/node_modules/browser-jest-message-util/build/index.js
 @@ -7,8 +7,6 @@ exports.separateMessageFromStack = exports.formatResultsErrors = exports.formatS
@@ -63,7 +63,7 @@ index 7ca2a81..5a3ae6e 100644
 -          // see: https://github.com/facebook/jest/pull/5405#discussion_r164281696
 -          fileContent = jestReadFile(filename, 'utf8');
 -          renderedCallsite = getRenderedCallsite(fileContent, line, column);
--        } catch (e) {
+-        } catch {
 -          // the file does not exist or is inaccessible, we ignore
 -        }
 -      }
