@@ -108,9 +108,9 @@ Object.assign(window, TestGlobals);
 
 snapshotMatchers(expect);
 
-function formatError(
+function getError(
   errors?: Circus.Exception | [Circus.Exception | undefined, Circus.Exception],
-): string {
+): Error {
   let error;
   let asyncError;
 
@@ -122,24 +122,22 @@ function formatError(
     asyncError = new Error();
   }
 
-  if (error) {
-    if (error.stack) {
-      return error.stack;
-    }
-    if (error.message) {
-      return error.message;
-    }
+  if (error && (error.stack || error.message)) {
+    return error;
   }
 
-  // asyncError.message = `thrown: ${prettyFormat(error, { maxDepth: 3 })}`;
+  // asyncError.message = `thrown: ${prettyFormat(error, {maxDepth: 3})}`;
+  asyncError.message = `thrown: ${error}`;
 
-  return asyncError.stack;
+  return asyncError;
 }
-
 function convertTestToResult(test: Circus.TestEntry): Result {
   const testPath = getTestPath(test);
   const suite = testPath.slice(0, -1);
-  const failureMessages = test.errors.map(formatError) as string[];
+  const failureDetails = test.errors.map(getError);
+  const failureMessages = failureDetails.map(
+    (error) => error.stack || error.message,
+  );
   const fullName = testPath.join(' ').trim();
 
   let status: AssertionResult['status'];
@@ -170,6 +168,7 @@ function convertTestToResult(test: Circus.TestEntry): Result {
     assertionResult: {
       status,
       fullName,
+      failureDetails,
       failureMessages,
       duration: test.duration,
       ancestorTitles: suite,
