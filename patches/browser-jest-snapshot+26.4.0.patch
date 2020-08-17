@@ -63,7 +63,7 @@ index c85c3c4..747f041 100644
  
  exports.getReceivedColorForChalkInstance = getReceivedColorForChalkInstance;
 diff --git a/node_modules/browser-jest-snapshot/build/utils.js b/node_modules/browser-jest-snapshot/build/utils.js
-index 215ebb5..8e53431 100644
+index 14c028e..8e53431 100644
 --- a/node_modules/browser-jest-snapshot/build/utils.js
 +++ b/node_modules/browser-jest-snapshot/build/utils.js
 @@ -7,12 +7,6 @@ exports.deepMerge = exports.saveSnapshotFile = exports.ensureDirectoryExists = e
@@ -191,7 +191,7 @@ index 215ebb5..8e53431 100644
 -
 -      const populate = new Function('exports', snapshotContents);
 -      populate(data);
--    } catch (e) {}
+-    } catch {}
 -  }
 -
 -  const validationResult = validateSnapshotVersion(snapshotContents);
@@ -228,7 +228,7 @@ index 215ebb5..8e53431 100644
 -    fs.mkdirSync(path.join(path.dirname(filePath)), {
 -      recursive: true
 -    });
--  } catch (e) {}
+-  } catch {}
 -};
 -
 -exports.ensureDirectoryExists = ensureDirectoryExists;
