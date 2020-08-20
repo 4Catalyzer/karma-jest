@@ -6,6 +6,8 @@ export default function getTestPath(test: Circus.TestEntry) {
   let pointer = test.parent;
   while (pointer && pointer.name !== RunnerState.ROOT_DESCRIBE_BLOCK_NAME) {
     path.unshift(pointer.name);
+    // @ts-expect-error
+    if (pointer.testFile) path.unshift(pointer.testFile);
     pointer = pointer.parent!;
   }
 

@@ -8,13 +8,15 @@ import useragent from 'ua-parser-js';
 
 import Printer from './Printer';
 import { SourceFile, cleanStack } from './Stack';
+import { normalizeConfig } from './config';
 import * as Serializer from './snapshot/Serializer';
 import { SnapshotSummary } from './snapshot/State';
 import { KarmaJestActions, LogType, Result } from './types';
 
-function browserShortName(fullname: string) {
+export function browserShortName(fullname: string) {
   return useragent(fullname).browser.name;
 }
+
 function resolveSnapshotPath(
   snapshotPath: string,
   suiteName: string,
@@ -23,17 +25,9 @@ function resolveSnapshotPath(
   return path.join(snapshotPath, `${suiteName}__${browser}.md`);
 }
 
-const CLEAR =
-  process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H';
-
 const CONTROL_C = '\u0003';
 const CONTROL_D = '\u0004';
 const ENTER = '\r';
-
-export interface Config {
-  snapshotPath?: string;
-  update?: 'new' | 'all' | false;
-}
 
 function shouldLog(type: LogType, level?: string) {
   if (!level) return false;
@@ -60,15 +54,13 @@ function Reporter(
   const reporter = this;
 
   let lastServedFiles = [] as SourceFile[];
+  // snapshots by browser
   let allSnapshotState: Record<string, SnapshotSummary> = {};
 
   const { browserConsoleLogOptions } = config;
 
-  const jestConfig: Config = config.jest || {};
-  const {
-    snapshotPath = `__snapshots__`,
-    update = config.singleRun ? false : 'new',
-  } = jestConfig;
+  const jestConfig = normalizeConfig(config, config.jest);
+  const { snapshotPath, update } = jestConfig;
 
   const fullSnapshotPath = path.isAbsolute(snapshotPath)
     ? snapshotPath
@@ -87,7 +79,7 @@ function Reporter(
   function updateSnapshots(up: typeof update = 'all') {
     Object.entries(allSnapshotState).forEach(([browser, state]) => {
       const resolver = (name: string) =>
-        resolveSnapshotPath(fullSnapshotPath, name, browser);
+        resolveSnapshotPath(fullSnapshotPath, path.basename(name), browser);
 
       Serializer.save(resolver, state, up);
     });
@@ -131,13 +123,14 @@ function Reporter(
   });
 
   const printer = new Printer({
+    config: jestConfig,
     write: reporter.write.bind(reporter),
     numBrowsers: config.browsers?.length || 1,
     processError: (err) => {
       return cleanStack(err, config.basePath, lastServedFiles || []);
     },
     snapshotResolver: (name, browser) =>
-      resolveSnapshotPath(fullSnapshotPath, name, browser),
+      resolveSnapshotPath(fullSnapshotPath, path.basename(name), browser),
   });
 
   this.writeCommonMsg = (msg: string) => {
@@ -185,7 +178,7 @@ function Reporter(
         break;
       case 'run_start':
         printer.numEstimatedTotalTests = action.payload.totalTests;
-        action.payload.rootSuites.forEach((name: string) => {
+        action.payload.testFiles.forEach((name) => {
           printer.addRootSuite(name, browser);
         });
         break;
@@ -205,7 +198,7 @@ function Reporter(
   };
 
   this.onRunStart = (_browser: any) => {
-    reporter.write(CLEAR);
+    printer.clearScreen();
 
     allSnapshotState = {};
     printer.runStart();
@@ -220,6 +213,8 @@ function Reporter(
 
   this.onRunComplete = async (_browsers: any, result: any) => {
     printer.runFinished();
+
+    printer.printStatus(false);
 
     if (result.failed) {
       await printer.printFailures();

@@ -12,14 +12,17 @@ const karmaJest = require('./src');
 
 module.exports = (config) => {
   config.set({
-    browsers: ['Chrome'],
+    browsers: [
+      'Chrome', //
+      'Firefox',
+    ],
     // logLevel: 'error',
     files: [
       /**
        * Make sure to disable Karma’s file watcher
        * because the preprocessor will use its own.
        */
-      { pattern: 'test/**/*.test.js', watched: false },
+      // { pattern: 'test/**/*.test.js', watched: false },
     ],
     plugins: [
       'karma-rollup-preprocessor',
@@ -31,7 +34,7 @@ module.exports = (config) => {
     frameworks: ['jest'],
     reporters: ['jest'], // ['mocha'],
     preprocessors: {
-      'test/**/*.test.js': ['rollup'],
+      // 'test/**/*.test.js': ['rollup'],
       'src/circus-adapter.ts': ['rolluplib'],
     },
     jest: {
@@ -44,9 +47,9 @@ module.exports = (config) => {
         sourcemap: 'inline',
       },
     },
-    // browserConsoleLogOptions: {
-    //   level: 'warn',
-    // },
+    browserConsoleLogOptions: {
+      level: 'warn',
+    },
     customPreprocessors: {
       rolluplib: {
         base: 'rollup',

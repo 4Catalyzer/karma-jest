@@ -3,13 +3,14 @@
 import FakeTimers from '@jest/fake-timers/build/modernFakeTimers';
 import { AssertionResult } from '@jest/test-result';
 import { Circus } from '@jest/types';
-import { DescribeBlock } from '@jest/types/build/Circus';
+import { DescribeBlock, TestEntry } from '@jest/types/build/Circus';
 import colors from 'ansi-colors';
 import expect from 'expect';
 import * as TestGlobals from 'jest-circus';
 import run from 'jest-circus/build/run';
 import RunnerState from 'jest-circus/build/state';
 import Mock from 'jest-mock';
+import countBy from 'lodash/countBy';
 
 import Console from './Console';
 import getTestPath from './getTestPath';
@@ -30,6 +31,8 @@ const testTimeoutSymbol = Symbol.for('TEST_TIMEOUT_SYMBOL');
 
 // eslint-disable-next-line no-underscore-dangle
 window.__snapshots__ = window.__snapshots__ || { suites: new Map() };
+// eslint-disable-next-line no-underscore-dangle
+window.__runnerState__ = RunnerState;
 
 const fakeTimers = new FakeTimers({
   global: window,
@@ -138,7 +141,7 @@ function convertTestToResult(test: Circus.TestEntry): Result {
   const failureMessages = failureDetails.map(
     (error) => error.stack || error.message,
   );
-  const fullName = testPath.join(' ').trim();
+  const fullName = testPath.slice(1).join(' ').trim();
 
   let status: AssertionResult['status'];
   if (test.status === 'skip') {
@@ -165,6 +168,7 @@ function convertTestToResult(test: Circus.TestEntry): Result {
     success: !failed,
     log: failureMessages.map((msg) => colors.unstyle(msg)),
     errors: failureMessages,
+    testFilePath: testPath[0],
     assertionResult: {
       status,
       fullName,
@@ -180,6 +184,17 @@ function convertTestToResult(test: Circus.TestEntry): Result {
   };
 }
 
+function hasOnly(block: Circus.DescribeBlock | Circus.TestEntry) {
+  if (block.mode === 'only') return true;
+
+  if ('children' in block)
+    for (const child of block.children) {
+      if (hasOnly(child)) return true;
+    }
+
+  return false;
+}
+
 function getTotal(block: Circus.DescribeBlock) {
   let total = 0;
   for (const child of block.children) {
@@ -187,6 +202,10 @@ function getTotal(block: Circus.DescribeBlock) {
   }
   return total;
 }
+
+// function collectDescribes(block: Circus.DescribeBlock) {
+//   const total;
+// }
 // Get suppressed errors from `jest-matchers` that weren't throw during
 // test execution and add them to the test result, potentially failing
 // a passing test.
@@ -207,52 +226,94 @@ function emit<Action extends KarmaJestActions>(action: Action) {
   karma.info(action);
 }
 
-function isRootDescribe(describeBlock: DescribeBlock) {
+function isRootDescribe(block: DescribeBlock | TestEntry) {
   const root = RunnerState.getState().rootDescribeBlock;
-  return root.children.some(
-    (c) => c.type === 'describeBlock' && c.name === describeBlock.name,
-  );
+  return block.parent === root;
 }
+
+let refCount: Record<string, number>;
+
+type RunnerState = Circus.State & {
+  testFile: string;
+};
 
 RunnerState.addEventHandler((event: Circus.Event) => {
   switch (event.name) {
+    case 'start_describe_definition': {
+      const {
+        currentDescribeBlock,
+        rootDescribeBlock,
+        testFile,
+      } = RunnerState.getState() as RunnerState;
+
+      if (currentDescribeBlock.parent === rootDescribeBlock)
+        // @ts-ignore
+        currentDescribeBlock.testFile = testFile;
+      break;
+    }
+    case 'add_test': {
+      const {
+        currentDescribeBlock,
+        rootDescribeBlock,
+        testFile,
+      } = RunnerState.getState() as RunnerState;
+
+      if (
+        currentDescribeBlock === rootDescribeBlock &&
+        currentDescribeBlock.tests
+      )
+        currentDescribeBlock.tests?.forEach((t: any) => {
+          t.testFile = testFile;
+        });
+      break;
+    }
     case 'run_start': {
       const root = RunnerState.getState().rootDescribeBlock;
-
-      expect.setState({
-        snapshot: new SnapshotState(karma.config?.snapshotUpdate),
-      });
 
       const total = getTotal(root);
       // this is not really important but Karma warns if you don't report the total
       karma.info({ total });
+
+      refCount = countBy(
+        root.children,
+        (r: any) => r.type === 'describeBlock' && r.testFile,
+      );
+
       emit({
         jestType: 'run_start',
         payload: {
           totalTests: total,
+          testFiles: Object.keys(refCount),
           rootSuites: root.children
             .filter((c) => c.type === 'describeBlock')
-            .map((d) => d.name),
+            .map((d) => ({
+              only: hasOnly(d),
+              name: d.name,
+            })),
         },
       });
 
       break;
     }
-    case 'run_describe_start':
-      if (isRootDescribe(event.describeBlock))
-        emit({
-          jestType: 'rootSuite_start',
-          payload: { name: event.describeBlock.name },
-        });
-      break;
-    case 'run_describe_finish':
-      if (isRootDescribe(event.describeBlock))
+    // case 'run_describe_start':
+    //   // console.log(event.describeBlock.mode);
+    //   if (isRootDescribe(event.describeBlock))
+    //     emit({
+    //       jestType: 'rootSuite_start',
+    //       payload: { name: event.describeBlock.name },
+    //     });
+    //   break;
+    case 'run_describe_finish': {
+      const { testFile } = event.describeBlock as any;
+      if (isRootDescribe(event.describeBlock) && --refCount[testFile] <= 0)
         emit({
           jestType: 'rootSuite_finish',
-          payload: { name: event.describeBlock.name },
+          payload: { name: testFile },
         });
       break;
+    }
     case 'test_start': {
+      // console.log(event.test.mode);
       const currentTestPath = getTestPath(event.test);
       expect.setState({
         index: -1,
@@ -317,8 +378,13 @@ karma.start = async () => {
 
   let result = {};
   try {
+    const json = await fetch(`base/snapshots`).then((r) => r.json());
+
+    const snapshot = new SnapshotState(karma.config?.snapshotUpdate, json);
+
+    expect.setState({ snapshot });
+
     await run();
-    const { snapshot } = expect.getState() as MatcherState;
 
     result = {
       snapshotState: snapshot.summary(),

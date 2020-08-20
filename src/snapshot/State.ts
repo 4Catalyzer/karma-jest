@@ -3,8 +3,8 @@ import * as Utils from 'jest-snapshot/build/utils';
 
 import { SerializedSnapshotSuite, Snapshot, SnapshotSuite } from './types';
 
-type UnchekedKeysBySuite = {
-  suite: string;
+export type UnchekedKeysBySuite = {
+  filePath: string;
   keys: Array<string>;
 };
 
@@ -21,7 +21,8 @@ export interface SnapshotSummary {
 
   unchecked: number;
   uncheckedKeys: string[];
-  uncheckedKeysBySuite: UnchekedKeysBySuite[];
+  // uncheckedKeysBySuite: UnchekedKeysBySuite[];
+  uncheckedKeysByFile: UnchekedKeysBySuite[];
   result: SerializedSnapshotSuite[];
 }
 
@@ -53,14 +54,13 @@ export default class SnapshotState {
     }));
   }
 
-  constructor(private update: 'all' | 'new' | false = 'new') {
+  constructor(
+    private update: 'all' | 'new' | false = 'new',
+    json: [string, any][],
+  ) {
     this.data = new Map(window.__snapshots__.suites);
 
-    this.snapshots = new Map(
-      Array.from(window.__snapshots__.suites).flatMap((d) =>
-        Array.from(d[1].snapshots),
-      ),
-    );
+    this.snapshots = new Map(json.flatMap(([_, { snapshots }]) => snapshots));
 
     this.uncheckedKeys = new Set(this.snapshots.keys());
   }
@@ -96,11 +96,11 @@ export default class SnapshotState {
 
     const { errored, unmatched, matched, updated, added } = this;
     const nextData = [] as SerializedSnapshotSuite[];
-    const uncheckedKeysBySuite = [];
+    const uncheckedKeysByFile = [];
     let suitesAdded = 0;
     const removedSuites = [] as string[];
 
-    for (const [suiteName, suite] of this.data) {
+    for (const [filePath, suite] of this.data) {
       const snapshots = [] as Snapshot[];
       const fileUncheckedKeys = [];
 
@@ -111,15 +111,16 @@ export default class SnapshotState {
         }
         snapshots.push(entry[1]);
       }
-      uncheckedKeysBySuite.push({
-        suite: suite.name,
+
+      uncheckedKeysByFile.push({
+        filePath,
         keys: fileUncheckedKeys,
       });
 
-      if (!prevSuites.has(suiteName)) suitesAdded++;
-      else if (!snapshots.length) removedSuites.push(suiteName);
+      if (!prevSuites.has(filePath)) suitesAdded++;
+      else if (!snapshots.length) removedSuites.push(filePath);
 
-      nextData.push({ name: suiteName, snapshots });
+      nextData.push({ name: filePath, snapshots });
     }
 
     return {
@@ -132,7 +133,7 @@ export default class SnapshotState {
       suitesAdded,
       suitesRemoved: removedSuites.length,
       suitesRemovedList: removedSuites,
-      uncheckedKeysBySuite,
+      uncheckedKeysByFile,
       unchecked: this.uncheckedKeys.size,
       uncheckedKeys: Array.from(this.uncheckedKeys),
       result: nextData,

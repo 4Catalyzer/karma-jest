@@ -1,6 +1,7 @@
 // eslint-disable-next-line spaced-comment
 /// <reference path="../src/index.d.ts" />
 
+console.log(expect.getState());
 describe('suite', () => {
   it.todo('works');
 
@@ -20,9 +21,15 @@ describe('suite', () => {
         23,
         4,
       ]);
-      expect(true).toEqual(true);
+      expect(true).toEqual(false);
     });
   });
+
+  // it('snapshots', () => {
+  //   expect(`
+  //     heeyo there 1
+  //   `).toMatchSnapshot();
+  // });
 
   it('should work 1', () => {
     const spy = karmaJest.fn();
@@ -48,7 +55,7 @@ describe('suite', () => {
     it('should work 2', () => {
       // expect(true).toEqual(false);
       expect(`
-      asfasffffffffffff
+      asfasffffffffffff!
       `).toMatchSnapshot();
     });
 

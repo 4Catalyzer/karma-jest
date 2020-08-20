@@ -16,11 +16,15 @@ import {
 // @ts-ignore
 import useragent from 'ua-parser-js';
 
+import type { Config } from '../config';
 import { SnapshotSummary } from '../snapshot/State';
 import { LogType, Result } from '../types';
 
 const isWindows = process.platform === 'win32';
 const ARROW = ' \u203A ';
+
+const CLEAR =
+  process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H';
 
 function getIcon(status: string) {
   if (status === 'failed') {
@@ -35,11 +39,6 @@ function getIcon(status: string) {
   return colors.green(isWindows ? '\u221A' : '\u2713');
 }
 
-const globalConfig = {
-  rootDir: process.cwd(),
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-};
-
 type SnapshotResolver = (suiteName: string, browserName: string) => string;
 
 export type Options = {
@@ -48,6 +47,7 @@ export type Options = {
   numBrowsers?: number;
   processError: (error: string | Error) => Promise<string>;
   snapshotResolver: SnapshotResolver;
+  config: Config;
 };
 
 export type LogEntry = { message: string; type: LogType; origin: string };
@@ -102,6 +102,8 @@ export default class Printer {
 
   private processError: (error: string | Error) => Promise<string>;
 
+  private readonly config: Config;
+
   clear = '';
 
   constructor({
@@ -110,12 +112,14 @@ export default class Printer {
     numBrowsers,
     snapshotResolver,
     processError,
+    config,
   }: Options) {
     this.write = write;
     this.numBrowsers = numBrowsers || 1;
     this.verbose = verbose || false;
     this.snapshotResolver = snapshotResolver;
     this.processError = processError;
+    this.config = config;
 
     // this.status = new Status(() => {
     //   this.clearStatus();
@@ -162,6 +166,11 @@ export default class Printer {
     // this.status.runFinished();
   }
 
+  clearScreen() {
+    this.write(CLEAR);
+    this.clear = '';
+  }
+
   clearStatus() {
     if (!this.clear) return;
 
@@ -188,8 +197,8 @@ export default class Printer {
     this.printStatus();
   }
 
-  addTestStart(testName: string, suite: string, browser: any) {
-    const key = suiteKey(suite, browser);
+  addTestStart(testName: string, testFile: string, browser: any) {
+    const key = suiteKey(testFile, browser);
 
     if (!this.rootSuitesRunning.has(key)) return;
 
@@ -200,7 +209,7 @@ export default class Printer {
 
   addTestResult(testResult: Result) {
     const { assertionResult } = testResult;
-    const rootSuite = assertionResult.ancestorTitles[0]!;
+    const rootSuite = testResult.testFilePath;
     let targetSuite = this.root;
 
     // Find the target suite for this test,
@@ -288,7 +297,7 @@ export default class Printer {
         numPassedTests: this.numPassedTests,
         numFailedTestSuites: this.failedSuites.size,
         numPassedTestSuites: this.passedSuites.size,
-        numTotalTestSuites: this.root.suites.length,
+        numTotalTestSuites: this.rootSuitesDone.size,
         startTime: this.startTime,
         snapshot: snapshot || emptyResult.snapshot,
       },
@@ -320,7 +329,7 @@ export default class Printer {
   async printError(err: string) {
     const error = await this.processError(err);
 
-    this.write(formatExecError(error, globalConfig, { noStackTrace: false }));
+    this.write(formatExecError(error, this.config, { noStackTrace: false }));
   }
 
   printStatus(withSummary = true) {
@@ -341,12 +350,12 @@ export default class Printer {
       content += '\n';
       count++;
     }
-    this.rootSuitesRunning.forEach(({ suite, browser }, key) => {
+    this.rootSuitesRunning.forEach(({ suite, browser }) => {
       count++;
       content += `${this.getHeader('running', suite, browser)}`;
 
-      const currentTest = this.currentTestByRootSuite.get(key);
-      if (currentTest) content += `  ${colors.dim(`${currentTest}…`)}`;
+      // const currentTest = this.currentTestByRootSuite.get(key);
+      // if (currentTest) content += `  ${colors.dim(`${currentTest}…`)}`;
       content += '\n';
     });
 
@@ -358,6 +367,7 @@ export default class Printer {
       if (progressWidth >= 2) {
         const total = this.numEstimatedTotalTests || 1;
         const perComplete = Math.min(this.results.size, total) / total;
+
         const length = Math.floor(perComplete * progressWidth);
         summary += `\n\n${colors.green('█').repeat(length)}${colors
           .white('█')
@@ -454,14 +464,15 @@ export default class Printer {
     this.write(`\n${colors.bold('Summary of all failing tests')}\n`);
 
     this.write(
-      formatResultsErrors(errs, globalConfig, { noStackTrace: false }) || '',
+      formatResultsErrors(errs, this.config, { noStackTrace: false }) || '',
     );
   }
 
   async printSummary(snapshotState: Record<string, SnapshotSummary>) {
     const { snapshot } = makeEmptyAggregatedTestResult();
     for (const [browser, browserSnapState] of Object.entries(snapshotState)) {
-      const resolver = (name: string) => this.snapshotResolver(name, browser);
+      const resolver = (filePath: string) =>
+        this.snapshotResolver(filePath, browser);
 
       if (!snapshot.didUpdate) snapshot.didUpdate = !!browserSnapState.updated;
 
@@ -477,14 +488,12 @@ export default class Printer {
       );
 
       snapshot.uncheckedKeysByFile.push(
-        ...browserSnapState.uncheckedKeysBySuite.map((f) => ({
+        ...browserSnapState.uncheckedKeysByFile.map((f) => ({
           ...f,
-          filePath: resolver(f.suite),
+          filePath: resolver(f.filePath),
         })),
       );
     }
-
-    this.printStatus(false);
 
     try {
       this.printSnapshotSummary(snapshot);
@@ -533,7 +542,7 @@ export default class Printer {
       }
 
       const formattedStackTrace = origin
-        ? formatStackTrace(origin, globalConfig, {
+        ? formatStackTrace(origin, this.config, {
             noCodeFrame,
             noStackTrace,
           })
@@ -562,7 +571,7 @@ export default class Printer {
     ) {
       const snapshotSummary = getSnapshotSummary(
         snapshots,
-        globalConfig as any,
+        this.config as any,
         'press u',
       );
       this.write('\n');

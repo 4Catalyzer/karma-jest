@@ -62,7 +62,7 @@ export function serialize(suite: SerializedSnapshotSuite) {
 }
 
 export function save(
-  resolver: (suiteName: string) => string,
+  resolveToFilePath: (suiteName: string) => string,
   summary: SnapshotSummary,
   update: 'all' | 'new' | false,
 ) {
@@ -80,10 +80,14 @@ export function save(
   if (update === 'all' && !hasChanges) return wrote;
 
   for (const suite of summary.result) {
-    const filepath = resolver(suite.name);
-    console.log('HERE', filepath);
+    const filepath = resolveToFilePath(suite.name);
+    // console.log('HERE', filepath);
     if (!suite.snapshots.length) {
-      fs.unlinkSync(resolver(suite.name));
+      try {
+        fs.unlinkSync(filepath);
+      } catch {
+        /* ignore */
+      }
       wrote = true;
     } else {
       wrote = true;

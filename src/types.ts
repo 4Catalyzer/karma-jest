@@ -15,7 +15,11 @@ export type RunStartAction = {
   jestType: 'run_start';
   payload: {
     totalTests: number;
-    rootSuites: string[];
+    testFiles: string[];
+    rootSuites: Array<{
+      name: string;
+      only: boolean;
+    }>;
   };
 };
 
@@ -55,6 +59,7 @@ export interface Result {
   time: number;
   suite: string[];
   log: string[];
+  testFilePath: string;
   assertionResult: AssertionResult;
 
   // an error thrown outside of the test runner

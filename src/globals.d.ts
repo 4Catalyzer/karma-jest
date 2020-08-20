@@ -17,4 +17,6 @@ interface Window {
   __snapshots__: {
     suites: Map<string, import('./snapshot/types').SnapshotSuite>;
   };
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  __runnerState__: import('jest-circus/build/state');
 }
