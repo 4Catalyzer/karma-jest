@@ -13,6 +13,7 @@ import {
   formatResultsErrors,
   formatStackTrace,
 } from 'jest-message-util';
+import sortBy from 'lodash/sortBy';
 // @ts-ignore
 import useragent from 'ua-parser-js';
 
@@ -191,6 +192,10 @@ export default class Printer {
   rootSuiteFinished(suite: string, browser: any) {
     const key = suiteKey(suite, browser);
 
+    if (this.rootSuitesDone.has(key) || !this.rootSuitesRunning.has(key)) {
+      return;
+    }
+
     this.rootSuitesRunning.delete(key);
     this.rootSuitesDone.set(key, { suite, browser });
 
@@ -337,7 +342,11 @@ export default class Printer {
     let count = 0;
 
     let content = this.clear;
-    this.rootSuitesDone.forEach(({ suite, browser }) => {
+
+    sortBy(Array.from(this.rootSuitesDone.values()), [
+      'suite',
+      'browser',
+    ]).forEach(({ suite, browser }) => {
       count++;
       content += `${this.getHeader(
         this.failedSuites.has(suite) ? 'fail' : 'pass',
@@ -514,7 +523,7 @@ export default class Printer {
       Array.from(this.logs, async (entry) => {
         // need to do the object version here b/c there is no message on the origin
         const origin = await this.processError({ stack: entry.origin } as any);
-        // console.log(origin, entry.origin);
+
         return { ...entry, origin };
       }),
     );

@@ -16,10 +16,11 @@ export type RunStartAction = {
   payload: {
     totalTests: number;
     testFiles: string[];
-    rootSuites: Array<{
-      name: string;
-      only: boolean;
-    }>;
+    focused: string[];
+    // rootSuites: Array<{
+    //   name: string;
+    //   focused: boolean;
+    // }>;
   };
 };
 

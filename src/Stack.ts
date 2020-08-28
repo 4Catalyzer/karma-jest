@@ -106,7 +106,7 @@ export async function cleanStack(
   const { stack, message = '' } =
     typeof error === 'string' ? separateMessageFromStack(error) : error;
 
-  if (!stack) return message || error;
+  if (!stack) return String(message || '');
 
   const lines = await Promise.all(
     StackParser.parse({ stack, message, name: '' }).map((f) =>

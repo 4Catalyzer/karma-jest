@@ -134,6 +134,7 @@ function getError(
 
   return asyncError;
 }
+
 function convertTestToResult(test: Circus.TestEntry): Result {
   const testPath = getTestPath(test);
   const suite = testPath.slice(0, -1);
@@ -184,23 +185,33 @@ function convertTestToResult(test: Circus.TestEntry): Result {
   };
 }
 
-function hasOnly(block: Circus.DescribeBlock | Circus.TestEntry) {
-  if (block.mode === 'only') return true;
-
-  if ('children' in block)
-    for (const child of block.children) {
-      if (hasOnly(child)) return true;
-    }
-
-  return false;
+function nonRootParent(block: Circus.TestEntry | Circus.DescribeBlock) {
+  while (block) {
+    if (block.parent?.name === RunnerState.ROOT_DESCRIBE_BLOCK_NAME)
+      return block;
+    block = block.parent!;
+  }
+  return block;
 }
 
-function getTotal(block: Circus.DescribeBlock) {
+function collect(root: Circus.DescribeBlock | Circus.TestEntry) {
   let total = 0;
-  for (const child of block.children) {
-    total += child.type === 'test' ? 1 : getTotal(child);
+  const focused = [] as string[];
+
+  const stack = [root];
+  let node;
+  // eslint-disable-next-line no-cond-assign
+  while ((node = stack.shift())) {
+    if ('children' in node) stack.push(...node.children);
+
+    if (node.type === 'test') total++;
+    if (node.mode === 'only') {
+      // @ts-expect-error testFile is not defined
+      focused.push(nonRootParent(node)?.testFile);
+    }
   }
-  return total;
+
+  return { total, focused };
 }
 
 // function collectDescribes(block: Circus.DescribeBlock) {
@@ -270,7 +281,8 @@ RunnerState.addEventHandler((event: Circus.Event) => {
     case 'run_start': {
       const root = RunnerState.getState().rootDescribeBlock;
 
-      const total = getTotal(root);
+      const { total, focused } = collect(root);
+
       // this is not really important but Karma warns if you don't report the total
       karma.info({ total });
 
@@ -282,14 +294,9 @@ RunnerState.addEventHandler((event: Circus.Event) => {
       emit({
         jestType: 'run_start',
         payload: {
-          totalTests: total,
+          focused,
           testFiles: Object.keys(refCount),
-          rootSuites: root.children
-            .filter((c) => c.type === 'describeBlock')
-            .map((d) => ({
-              only: hasOnly(d),
-              name: d.name,
-            })),
+          totalTests: total,
         },
       });
 

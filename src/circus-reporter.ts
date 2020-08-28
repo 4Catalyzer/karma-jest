@@ -176,13 +176,18 @@ function Reporter(
         if (shouldLog(action.payload.type, browserConsoleLogOptions?.level))
           printer.addLog(action.payload);
         break;
-      case 'run_start':
-        printer.numEstimatedTotalTests = action.payload.totalTests;
-        action.payload.testFiles.forEach((name) => {
-          printer.addRootSuite(name, browser);
+      case 'run_start': {
+        const { totalTests, testFiles, focused } = action.payload;
+
+        printer.numEstimatedTotalTests += totalTests;
+
+        testFiles.forEach((name) => {
+          if (!focused.length || focused.includes(name)) {
+            printer.addRootSuite(name, browser);
+          }
         });
         break;
-
+      }
       case 'test_start':
         printer.addTestStart(
           action.payload.name,
@@ -197,7 +202,9 @@ function Reporter(
     }
   };
 
-  this.onRunStart = (_browser: any) => {
+  this.onRunStart = (browser: any) => {
+    browser.seen = false;
+
     printer.clearScreen();
 
     allSnapshotState = {};

@@ -1,7 +1,7 @@
 // eslint-disable-next-line spaced-comment
 /// <reference path="../src/index.d.ts" />
 
-console.log(expect.getState());
+// console.log(expect.getState());
 describe('suite', () => {
   it.todo('works');
 
