@@ -173,8 +173,9 @@ function Reporter(
 
     switch (action.jestType) {
       case 'log':
-        if (shouldLog(action.payload.type, browserConsoleLogOptions?.level))
+        if (shouldLog(action.payload.type, browserConsoleLogOptions?.level)) {
           printer.addLog(action.payload);
+        }
         break;
       case 'run_start': {
         const { totalTests, testFiles, focused } = action.payload;

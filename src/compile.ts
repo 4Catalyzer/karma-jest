@@ -33,12 +33,10 @@ function getPathKey(filePath: string, withExtension = false) {
   return withExtension ? `${key}${pathParts.ext}` : key;
 }
 
-export function registerExtraWebpackFiles({
-  basePath,
-  files,
-  jest,
-  autoWatch,
-}: KarmaConfig) {
+export function registerExtraWebpackFiles(
+  { files, autoWatch }: KarmaConfig,
+  jest: Config,
+) {
   const commonsPath = path.join(controller.outputPath, 'commons.js');
   const runtimePath = path.join(controller.outputPath, 'runtime.js');
 
@@ -59,6 +57,20 @@ export function registerExtraWebpackFiles({
     watched: false,
   });
 
+  const resolvedRoot = path.resolve(jest.rootDir);
+  const webpackEntries: Record<string, string> = {};
+
+  // put before the adapter
+  jest.setupFiles.forEach((filePath) => {
+    const resolved = path.join(resolvedRoot, filePath);
+    files.unshift({
+      type: 'js',
+      watched: false,
+      pattern: resolved,
+    });
+    webpackEntries[getPathKey(resolved)] = resolved;
+  });
+
   files.unshift({
     pattern: runtimePath,
     included: true,
@@ -66,17 +78,27 @@ export function registerExtraWebpackFiles({
     watched: false,
   });
 
-  const resolvedBase = path.resolve(basePath);
-  const webpackEntries: Record<string, string> = {};
+  // after adapter
+  jest.setupFilesAfterEnv.forEach((filePath) => {
+    const resolved = path.join(resolvedRoot, filePath);
+    files.push({
+      type: 'js',
+      watched: false,
+      pattern: resolved,
+    });
+
+    webpackEntries[getPathKey(resolved)] = resolved;
+  });
 
   jest.testMatch!.forEach((pattern) => {
     glob
       .sync(pattern, {
-        cwd: resolvedBase,
+        cwd: resolvedRoot,
         ignore: jest.testPathIgnorePatterns,
       })
       .forEach((filePath) => {
-        const resolved = path.join(resolvedBase, filePath);
+        const resolved = path.join(resolvedRoot, filePath);
+
         files.push({
           type: 'js',
           watched: false,
@@ -93,17 +115,11 @@ export function registerExtraWebpackFiles({
     controller.updateWebpackOptions({
       entry: webpackEntries,
       watch: autoWatch,
-      context: resolvedBase,
+      context: resolvedRoot,
     });
   }
   return webpackEntries;
 }
-
-export const jestDefaults = {
-  snapshotPath: '__snapshots__',
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-  testPathIgnorePatterns: ['**/node_modules/**'],
-};
 
 type KarmaConfig = {
   files: FilePattern[];

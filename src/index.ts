@@ -21,7 +21,6 @@ const createPattern = (pattern: string): any => ({
 function initCircus(
   karmaConfig: any,
   partialJest: Partial<Config> = {},
-  basePath: string,
   files: any[],
   preprocessors: any,
 ) {
@@ -31,19 +30,21 @@ function initCircus(
 
   files.unshift(createPattern(require.resolve('./circus-adapter.ts')));
 
-  jest.testMatch.forEach((pattern) => {
-    preprocessors[path.join(basePath, pattern)] = ['jest-compiler'];
-  });
+  [...jest.setupFiles, ...jest.setupFilesAfterEnv, ...jest.testMatch].forEach(
+    (pattern) => {
+      preprocessors[path.join(jest.rootDir, pattern)] = ['jest-compiler'];
+    },
+  );
+
   karmaConfig.beforeMiddleware = karmaConfig.beforeMiddleware || [];
   karmaConfig.beforeMiddleware.push('jest-snapshot');
 
-  Compile.registerExtraWebpackFiles(karmaConfig);
+  Compile.registerExtraWebpackFiles(karmaConfig, jest);
 }
 
 initCircus.$inject = [
   'config',
   'config.jest',
-  'config.basePath',
   'config.files',
   'config.preprocessors',
 ];

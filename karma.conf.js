@@ -14,7 +14,7 @@ module.exports = (config) => {
   config.set({
     browsers: [
       'Chrome', //
-      'Firefox',
+      // 'Firefox',
     ],
     // logLevel: 'error',
     files: [
@@ -38,6 +38,8 @@ module.exports = (config) => {
       'src/circus-adapter.ts': ['rolluplib'],
     },
     jest: {
+      rootDir: './test',
+      setupFilesAfterEnv: ['./setup.ts'],
       snapshotPath: 'test/__snapshots__',
     },
     rollupPreprocessor: {
@@ -48,7 +50,7 @@ module.exports = (config) => {
       },
     },
     browserConsoleLogOptions: {
-      level: 'warn',
+      level: 'log',
     },
     customPreprocessors: {
       rolluplib: {

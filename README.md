@@ -25,7 +25,6 @@ module.exports = (config) => {
     frameworks: ['jest'],
     reporters: ['jest'],
 
-    // Add options (defaults below)
     jest: {
       snapshotPath: '__snapshots__',
       testMatch: [
@@ -42,9 +41,12 @@ module.exports = (config) => {
 
 At the moment karma-jest supports a limited subset of jest options on the `jest`:
 
+- `rootDir`: The root directory (if different from karma's basePath)
 - `testMatch`: an array of glob patterns to select test files
 - `testPathIgnorePatterns`: an array of patterns matching ignored files
 - `snapshotPath`: the directory snapshots are saved in, defaults to: `path.join(karmaConfig.basePath, '__snapshots__')`
+- `setupFiles`: an array of files to run before test framework setup
+- `setupFilesAfterEnv`: an array of files to run after test framework setup
 
 Internally `karma-jest` uses `webpack` to compile and run tests. Reasonable defaults
 are provided for compiling JS, CSS, and various font and image assets. To customize the webpack
