@@ -90,6 +90,7 @@ export function registerExtraWebpackFiles(
     webpackEntries[getPathKey(resolved)] = resolved;
   });
 
+  const loader = require.resolve('imports-loader');
   jest.testMatch!.forEach((pattern) => {
     glob
       .sync(pattern, {
@@ -107,7 +108,7 @@ export function registerExtraWebpackFiles(
 
         webpackEntries[
           getPathKey(resolved)
-        ] = `imports-loader?{"additionalCode":"__runnerState__.getState().testFile='${filePath}';"}!${resolved}`;
+        ] = `${loader}?{"additionalCode":"__runnerState__.getState().testFile='${filePath}';"}!${resolved}`;
       });
   });
 
@@ -165,8 +166,12 @@ function getWebpackOptions(
     stats: 'minimal' as const,
   };
 
-  if (typeof userConfig === 'function') userConfig(defaultConfig);
-  return webpackMerge(defaultConfig, userConfig);
+  const config =
+    typeof userConfig === 'function'
+      ? userConfig(defaultConfig)
+      : webpackMerge(defaultConfig, userConfig);
+
+  return config;
 }
 
 // the output files are JS regardless of the input extension
