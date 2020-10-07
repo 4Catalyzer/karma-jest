@@ -4,16 +4,11 @@ import path from 'path';
 
 import glob from 'glob';
 import { FilePattern } from 'karma';
-// @ts-ignore
-import { KarmaWebpackController } from 'karma-webpack/lib/KarmaWebpackController';
-// @ts-ignore
-import { loaders, plugins, rules } from 'webpack-atoms';
-import webpackMerge from 'webpack-merge';
 
+import WebpackController from './WebpackController';
 import { Config } from './config';
-import AutoMockDirectoryPlugin from './plugins/AutoMockDirectory';
 
-const controller = new KarmaWebpackController();
+export const controller = new WebpackController();
 
 /**
  * Simple hash function by bryc
@@ -113,7 +108,7 @@ export function registerExtraWebpackFiles(
   });
 
   if (controller.isActive === false) {
-    controller.updateWebpackOptions({
+    Object.assign(controller.webpackOptions, {
       entry: webpackEntries,
       watch: autoWatch,
       context: resolvedRoot,
@@ -131,49 +126,6 @@ type KarmaConfig = {
 
 const normalize = (file: string) => file.replace(/\\/g, '/');
 
-function getWebpackOptions(
-  basePath: string,
-  userConfig: any | ((config: any) => any),
-) {
-  const defaultConfig = {
-    devtool: 'inline-source-map' as const,
-    module: {
-      rules: [
-        { ...rules.js(), test: /\.[j|t]sx?$/ },
-        rules.css({ extract: false }),
-        {
-          oneOf: [
-            { test: /\.svg$/, use: loaders.url() },
-            rules.fonts(),
-            rules.audioVideo(),
-            rules.images(),
-          ],
-        },
-      ],
-    },
-    plugins: [
-      plugins.define({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        'process.env.NODE_ENV': '"test"',
-      }),
-    ],
-    resolve: {
-      symlinks: false,
-      modules: ['node_modules'],
-      extensions: ['.mjs', '.js', '.ts', '.tsx', '.json'],
-      plugins: [new AutoMockDirectoryPlugin(path.resolve(basePath))],
-    },
-    stats: 'minimal' as const,
-  };
-
-  const config =
-    typeof userConfig === 'function'
-      ? userConfig(defaultConfig)
-      : webpackMerge(defaultConfig, userConfig);
-
-  return config;
-}
-
 // the output files are JS regardless of the input extension
 function transformPath(filepath: string) {
   const info = path.parse(filepath);
@@ -182,10 +134,7 @@ function transformPath(filepath: string) {
 
 export function compilerPreprocessor(config: any, emitter: any) {
   if (controller.isActive === false) {
-    controller.updateWebpackOptions(
-      getWebpackOptions(config.basePath, config.webpack || {}),
-    );
-    controller.karmaEmitter = emitter;
+    controller.configure(emitter, config.basePath, config.webpack || {});
   }
 
   return async function processFile(_: any, file: any, done: any) {

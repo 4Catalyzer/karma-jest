@@ -28,7 +28,23 @@ function initCircus(
 
   karmaConfig.customDebugFile = require.resolve('./assets/debug.html');
 
-  files.unshift(createPattern(require.resolve('./circus-adapter.ts')));
+  const adapter = require.resolve('./circus-adapter.ts');
+  files.unshift(
+    createPattern(
+      path.join(
+        path.dirname(adapter),
+        `${path.basename(adapter, '.ts')}.js.map`,
+      ),
+    ),
+  );
+  files.unshift(createPattern(adapter));
+
+  // files.push({
+  //   pattern: path.join(jest.rootDir, '**/*.js.map'),
+  //   included: false,
+  //   watched: false,
+  //   served: true,
+  // });
 
   [...jest.setupFiles, ...jest.setupFilesAfterEnv, ...jest.testMatch].forEach(
     (pattern) => {

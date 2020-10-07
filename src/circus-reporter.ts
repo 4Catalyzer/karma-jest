@@ -2,12 +2,14 @@
 
 import path from 'path';
 
+import colors from 'ansi-colors';
 import { constants } from 'karma';
 // @ts-ignore
 import useragent from 'ua-parser-js';
 
 import Printer from './Printer';
 import { SourceFile, cleanStack } from './Stack';
+import { controller } from './compile';
 import { normalizeConfig } from './config';
 import * as Serializer from './snapshot/Serializer';
 import { SnapshotSummary } from './snapshot/State';
@@ -132,6 +134,28 @@ function Reporter(
     snapshotResolver: (name, browser) =>
       resolveSnapshotPath(fullSnapshotPath, path.basename(name), browser),
   });
+
+  // let spinner: Ora;
+  controller
+    // .on('build:progress', (percent, ...args) => {
+    //   if (!spinner) spinner = printer.spinner().start();
+
+    //   // console.log(percent, msg, ...args);
+    //   spinner!.text = `${+percent * 100}% ${args.join(' ')}`;
+    // })
+    .on('build:started', () => {
+      printer.printMsg(
+        colors.blue(
+          controller.hasBeenBuiltAtLeastOnce ? 'Recompiling…' : 'Compiling…',
+        ),
+      );
+    })
+    .on('build:failed', (errors) => {
+      printer.printError(errors);
+    })
+    .on('build:errors', (errors) => {
+      printer.printError(errors);
+    });
 
   this.writeCommonMsg = (msg: string) => {
     printer.printMsg(msg);

@@ -14,6 +14,7 @@ import {
   formatStackTrace,
 } from 'jest-message-util';
 import sortBy from 'lodash/sortBy';
+import ora from 'ora';
 // @ts-ignore
 import useragent from 'ua-parser-js';
 
@@ -177,6 +178,10 @@ export default class Printer {
 
     this.write(this.clear);
     this.clear = '';
+  }
+
+  spinner(text?: string) {
+    return ora(text);
   }
 
   addRootSuite(suite: string, browser: any) {

@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "patch-package",
-    "build": "rollup -c rollup.config.js && cp -r src/assets lib/assets",
+    "build": "rollup -c rollup.config.js && cp -r src/assets lib &&  cp -r src/shims lib/",
     "format": "4c format src './*'",
     "lint": "4c lint src './*'",
     "prepublishOnly": "yarn run build",
@@ -111,6 +111,7 @@
     "karma-webpack": "^5.0.0-alpha.3.0",
     "lodash": "^4.17.19",
     "marked": "^1.0.0",
+    "ora": "^5.1.0",
     "pretty-format": "^26.0.1",
     "source-map": "^0.7.3",
     "ua-parser-js": "^0.7.21",
