@@ -31,10 +31,7 @@ function initCircus(
   const adapter = require.resolve('./circus-adapter.ts');
   files.unshift(
     createPattern(
-      path.join(
-        path.dirname(adapter),
-        `${path.basename(adapter, '.ts')}.js.map`,
-      ),
+      path.join(path.dirname(adapter), `${path.basename(adapter)}.map`),
     ),
   );
   files.unshift(createPattern(adapter));

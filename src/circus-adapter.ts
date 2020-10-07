@@ -363,6 +363,20 @@ RunnerState.addEventHandler((event: Circus.Event) => {
   // }
 });
 
+function getSnapshots(): Promise<any> {
+  // using xhr to avoid fetch mocks
+  const req = new XMLHttpRequest();
+  req.responseType = 'json';
+
+  return new Promise((resolve, reject) => {
+    req.addEventListener('load', () => resolve(req.response));
+    req.addEventListener('error', () => reject(new Error(req.responseText)));
+
+    req.open('GET', '/base/snapshots', true);
+    req.send();
+  });
+}
+
 window.onerror = (msgOrError, source, lineno, colno, error) => {
   // Karma does weird things to the error instead of just using the error arg
   if (error) {
@@ -385,7 +399,7 @@ karma.start = async () => {
 
   let result = {};
   try {
-    const json = await fetch(`base/snapshots`).then((r) => r.json());
+    const json = await getSnapshots();
 
     const snapshot = new SnapshotState(karma.config?.snapshotUpdate, json);
 

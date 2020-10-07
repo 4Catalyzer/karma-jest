@@ -137,12 +137,6 @@ function Reporter(
 
   // let spinner: Ora;
   controller
-    // .on('build:progress', (percent, ...args) => {
-    //   if (!spinner) spinner = printer.spinner().start();
-
-    //   // console.log(percent, msg, ...args);
-    //   spinner!.text = `${+percent * 100}% ${args.join(' ')}`;
-    // })
     .on('build:started', () => {
       printer.printMsg(
         colors.blue(
