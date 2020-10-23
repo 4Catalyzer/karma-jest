@@ -3,10 +3,52 @@ import { existsSync, promises as fs } from 'fs';
 import path from 'path';
 
 import StackParser from 'error-stack-parser';
-// @ts-ignore
-import { parse } from 'get-sourcemaps';
 import { separateMessageFromStack } from 'jest-message-util';
 import { RawSourceMap, SourceMapConsumer } from 'source-map';
+
+const sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
+const charsetRegex = /^;charset=([^;]+);/;
+
+function parseSourceMap(content: string) {
+  function inlineMap(inlineData: string) {
+    let charset = 'utf-8';
+
+    if (charsetRegex.test(inlineData)) {
+      const matches = inlineData.match(charsetRegex);
+
+      if (matches?.length === 2) {
+        charset = matches[1];
+        inlineData = inlineData.slice(matches[0].length - 1);
+      }
+    }
+
+    if (!/^;base64,/.test(inlineData)) throw new Error('not base64');
+
+    // base64-encoded JSON string
+    const buffer = Buffer.from(inlineData.slice(';base64,'.length), 'base64');
+    return JSON.parse(buffer.toString(charset));
+  }
+
+  const lines = content.split(/\n/);
+  let lastLine = lines.pop();
+  while (/^\s*$/.test(lastLine!)) {
+    lastLine = lines.pop();
+  }
+
+  let mapUrl;
+  if (sourcemapUrlRegeExp.test(lastLine!)) {
+    mapUrl = lastLine!.replace(sourcemapUrlRegeExp, '');
+  }
+
+  if (!mapUrl) return {};
+
+  if (/^data:application\/json/.test(mapUrl)) {
+    return {
+      sourceMap: inlineMap(mapUrl.slice('data:application/json'.length)),
+    };
+  }
+  return { url: mapUrl };
+}
 
 const cache = new WeakMap<any, SourceMapConsumer>();
 
@@ -26,13 +68,13 @@ async function getSourceMapConsumer(sourceMap: RawSourceMap) {
 }
 
 export async function getSourceMap(content: string) {
-  const { url, sourcemap } = parse(content);
+  const { url, sourceMap } = parseSourceMap(content);
 
   if (url && existsSync(url)) {
     return JSON.parse(await fs.readFile(url, 'utf-8'));
   }
 
-  return sourcemap;
+  return sourceMap;
 }
 
 export interface SourceFile {
@@ -114,6 +156,5 @@ export async function cleanStack(
     ),
   );
 
-  // .filter((line) => line?.match(/build\/ErrorWithStack/))
   return `${message}\n${lines.join('\n')}`;
 }

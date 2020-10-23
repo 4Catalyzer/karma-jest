@@ -547,12 +547,12 @@ export default class Printer {
         message = colors.yellow(message);
         typeMessage = colors.yellow(typeMessage);
         noStackTrace = false;
-        noCodeFrame = false;
+        noCodeFrame = true;
       } else if (type === 'error') {
         message = colors.red(message);
         typeMessage = colors.red(typeMessage);
         noStackTrace = false;
-        noCodeFrame = false;
+        noCodeFrame = true;
       }
 
       const formattedStackTrace = origin

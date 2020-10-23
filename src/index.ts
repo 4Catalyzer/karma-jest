@@ -29,11 +29,14 @@ function initCircus(
   karmaConfig.customDebugFile = require.resolve('./assets/debug.html');
 
   const adapter = require.resolve('./circus-adapter.ts');
-  files.unshift(
-    createPattern(
-      path.join(path.dirname(adapter), `${path.basename(adapter)}.map`),
-    ),
-  );
+
+  files.unshift({
+    pattern: path.join(path.dirname(adapter), `${path.basename(adapter)}.map`),
+    served: true,
+    included: false,
+    watched: false,
+  });
+
   files.unshift(createPattern(adapter));
 
   // files.push({

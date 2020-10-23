@@ -157,7 +157,6 @@ class WebpackController extends EventEmitter {
       this.activePromise = new Promise((resolve) => {
         if (this.webpackOptions.watch === true) {
           this.emit('watch:start');
-          // console.log('Webpack starts watching...');
           this.webpackFileWatcher = this.compiler!.watch({}, (err, stats) =>
             this.handleBuildResult(err, stats, resolve),
           );
