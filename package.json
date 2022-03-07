@@ -110,7 +110,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^5.0.0-alpha.3.0",
     "lodash": "^4.17.19",
-    "marked": "^1.0.0",
+    "marked": "^4.0.0",
     "ora": "^5.1.0",
     "pretty-format": "^26.0.1",
     "source-map": "^0.7.3",
